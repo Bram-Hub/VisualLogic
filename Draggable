@@ -1,0 +1,75 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+public class dragable : MonoBehaviour{
+    static Texture2D pointerIcon;
+    GameObject tmp;
+    CursorMode cursorMode;
+    Vector2 hotSpot;
+    Vector3 inputPos;
+    SpriteRenderer rend;
+    bool hasCollided = false;
+    float mouseWheel;
+    List<Transform> children;
+    void Start() {
+        pointerIcon = Resources.Load("pointer") as Texture2D;
+        tmp = GameObject.Find("tmp");
+        cursorMode = CursorMode.Auto;
+        hotSpot = Vector2.zero;
+        rend = gameObject.GetComponent<SpriteRenderer>();
+        children = new List<Transform>();
+    }
+    
+    public void OnMouseDrag() {
+        this.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x,Input.mousePosition.y,10));
+    }
+    public void OnMouseEnter() {
+        Cursor.SetCursor(pointerIcon, hotSpot, cursorMode);
+        this.rend.color = Color.blue;
+    }
+    public void OnMouseExit() {
+        Cursor.SetCursor(null, hotSpot, cursorMode);
+        this.rend.color = Color.white;
+        if(this.name == "cut") {
+            
+        }
+    }
+    public void OnMouseOver() {
+        if(this.name == "cut") {
+            int childCount = this.transform.childCount;
+            for(int i = 0;i < childCount;i++) {
+                if (this.transform.GetChild(i).name != "cut" && this.transform.GetChild(i).name != "innerCut" && !children.Contains(this.transform.GetChild(i))) {
+                    children.Add(this.transform.GetChild(i));
+                }
+            }
+        }
+        mouseWheel = Input.GetAxis("Mouse ScrollWheel");
+        if (this.name == "cut") {
+            if (mouseWheel != 0f) {
+                foreach (Transform c in children) {
+                    c.transform.parent = tmp.transform;
+                }
+                if (mouseWheel > 0f)this.transform.localScale += new Vector3(mouseWheel, mouseWheel,0);
+                else this.transform.localScale -= new Vector3(-mouseWheel, -mouseWheel, 0);
+            } else {
+                foreach (Transform c in children) {
+                    c.transform.parent = this.transform;
+                }
+                children.Clear();
+            }
+        }
+    }
+    private void OnTriggerEnter2D(Collider2D other) {
+        if(other.gameObject.name == "cut") {
+            this.transform.parent = other.transform;
+        }
+        
+    }
+    private void OnTriggerExit2D(Collider2D other) {
+        if(other.gameObject.name == "cut") {
+            this.transform.parent = tmp.transform;
+        }
+    }
+}
