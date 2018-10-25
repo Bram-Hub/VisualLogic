@@ -16,8 +16,8 @@ public class backGround : MonoBehaviour {
         scale = 1.7f;
         width = 16;
         height = 11;
-        for (int i = 0; i < width;i++) {
-            for (int j = 0; j < height;j++) {
+        for (int i = -10; i < width;i++) {
+            for (int j = -10; j < height;j++) {
                 copy = Instantiate(background,new Vector3(i*scale,j*scale,0.0f),Quaternion.identity);
                 copy.parent = par;
             }
