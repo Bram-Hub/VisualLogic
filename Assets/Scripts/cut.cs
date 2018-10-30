@@ -41,6 +41,9 @@ public class cut : MonoBehaviour{
             nmanager.currentItem = null;
             return;
         }
+        if(Input.touchCount == 2) {
+            //hanlde zoom out here
+        }
         start = transform.position;
         offset = transform.position - GetHitPoint();
         foreach(child i in children) {
@@ -70,23 +73,26 @@ public class cut : MonoBehaviour{
         Vector3 screenSpace = Camera.main.ScreenToWorldPoint(new Vector2(Input.mousePosition.x, Input.mousePosition.y)) - transform.position;
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         pointer.mouseOverCursor();
-        if(scroll != 0f) {
-            foreach (child i in children) {
-                i.getObj().transform.SetParent(null);
-                i.getObj().transform.position = new Vector3( i.getObj().transform.position.x, i.getObj().transform.position.y, i.getObj().transform.position.z);
-                //i.getObj().transform.position = i.getPos();
-            }
-        }
-        if (scroll > 0f) {
-            transform.localScale += new Vector3(scroll, scroll , 0);
-        } else if(scroll != 0 && transform.localScale.x >= 0.3f) {
-            transform.localScale -= new Vector3(-scroll, -scroll, 0);
-        }
+        ResizeCut(scroll);
     }
     private void OnMouseExit() {
         nmanager.currentItem = null;
         end = transform.position;
         pointer.resetCursor();
+    }
+    private void ResizeCut(float scroll) {
+        if (scroll != 0f) {
+            foreach (child i in children) {
+                i.getObj().transform.SetParent(null);
+                i.getObj().transform.position = new Vector3(i.getObj().transform.position.x, i.getObj().transform.position.y, i.getObj().transform.position.z);
+                //i.getObj().transform.position = i.getPos();
+            }
+        }
+        if (scroll > 0f) {
+            transform.localScale += new Vector3(scroll, scroll, 0);
+        } else if (scroll != 0 && transform.localScale.x >= 0.3f) {
+            transform.localScale -= new Vector3(-scroll, -scroll, 0);
+        }
     }
     private Vector3 GetHitPoint() {
         Plane plane = new Plane(Camera.main.transform.forward, transform.position);
