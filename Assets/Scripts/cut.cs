@@ -41,15 +41,32 @@ public class cut : MonoBehaviour{
             nmanager.currentItem = null;
             return;
         }
-        if(Input.touchCount == 2) {
-            //hanlde zoom out here
-        }
-        start = transform.position;
-        offset = transform.position - GetHitPoint();
-        foreach(child i in children) {
-            i.setStartPos();
-            i.getObj().transform.SetParent(gameObject.transform);
-        }
+		if (Input.touchCount == 2) {
+			//hanlde zoom out here
+			Touch touchZero = Input.GetTouch (0);
+			Touch touchOne = Input.GetTouch (1);
+
+			// Find the position in the previous frame of each touch.
+			Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
+			Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+
+			// Find the magnitude of the vector (the distance) between the touches in each frame.
+			float prevTouchDeltaMag = (touchZeroPrevPos - touchOnePrevPos).magnitude;
+			float touchDeltaMag = (touchZero.position - touchOne.position).magnitude;
+
+			// Find the difference in the distances between each frame.
+			float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
+
+			ResizeCut (deltaMagnitudeDiff);
+
+		} else {
+			start = transform.position;
+			offset = transform.position - GetHitPoint ();
+			foreach (child i in children) {
+				i.setStartPos ();
+				i.getObj ().transform.SetParent (gameObject.transform);
+			}
+		}
     }
     private void OnMouseUp() {
         nmanager.moved(start, end, gameObject);
