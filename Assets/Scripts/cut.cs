@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+
+/*
+ * This Class represents a 'cut' 
+ * A cut is similar to a free variable but has some special conditions
+ * for example if it is true or false
+ */
+
 public class cut : MonoBehaviour{
     Vector3 s, currentPoint, offset;
     mousePointer pointer;
@@ -22,6 +29,7 @@ public class cut : MonoBehaviour{
         level = 1;
 	}
     private void Update() {
+		//check to display the inside of the cut as either dark or light gray to indicate negation
         //FFFFFFBD
         //A3A3A3BD
         if (level == 0) level = 1;
@@ -31,16 +39,19 @@ public class cut : MonoBehaviour{
         GameObject inner = gameObject.transform.GetChild(0).gameObject;
         inner.GetComponent<SpriteRenderer>().color = (level % 2 == 0) ? tru : fal;
 
+		//the level should decide the z position so the highest level can always be selected first
         float z = (level == 1) ? 0  : -1 * level;
         gameObject.transform.position = new Vector3(transform.position.x,transform.position.y,z);
     }
     private void OnMouseDown() {
         if (deleteMode.getDeleteMode()){
+			//check if deleting
             nmanager.delete(gameObject);
             pointer.resetCursor();
             nmanager.currentItem = null;
             return;
         }
+		//handle touch inputs
 		if (Input.touchCount == 2) {
 			//hanlde zoom out here
 			Touch touchZero = Input.GetTouch (0);
@@ -60,14 +71,18 @@ public class cut : MonoBehaviour{
 			ResizeCut (deltaMagnitudeDiff);
 
 		} else {
+			//otherwise a normal move
 			start = transform.position;
 			offset = transform.position - GetHitPoint ();
+			//get all of the children (smaller cuts and variables) and correct their position
 			foreach (child i in children) {
 				i.setStartPos ();
 				i.getObj ().transform.SetParent (gameObject.transform);
 			}
 		}
     }
+	//code to help record the movements of the user
+	//TODO better recording to eventually play a 'movie'
     private void OnMouseUp() {
         nmanager.moved(start, end, gameObject);
         nmanager.currentItem = null;
@@ -78,6 +93,7 @@ public class cut : MonoBehaviour{
             nmanager.moved(i.start, i.end, i.getObj());
         }
     }
+	//change position when dragging
     private void OnMouseDrag() {
         nmanager.currentItem = gameObject;
         transform.position = GetHitPoint() + offset;
@@ -85,6 +101,7 @@ public class cut : MonoBehaviour{
             i.updatePos(i.getObj().transform.position);
         }
     }
+	//handle scrolling with mousewhile and update cursor
     private void OnMouseOver() {
         nmanager.currentItem = gameObject;
         Vector3 screenSpace = Camera.main.ScreenToWorldPoint(new Vector2(Input.mousePosition.x, Input.mousePosition.y)) - transform.position;
@@ -118,6 +135,8 @@ public class cut : MonoBehaviour{
         plane.Raycast(ray, out dist);
         return ray.GetPoint(dist);
     }
+	//when another cut is placed into a cut decide which one should be the higher level cut
+	//TODO: auto-resize cuts in the future?
     private void OnTriggerEnter2D(Collider2D collision) {
         child c = new child(collision.gameObject, collision.transform.localPosition);
         if(collision.name != "cut"){
@@ -133,10 +152,12 @@ public class cut : MonoBehaviour{
                 level++;            
             }
             else{
-                
+               //handle same size? 
+				//TODO: add auto-resize code
             }
         }
     }
+	//update level reverse of above function
     private void OnTriggerExit2D(Collider2D collision) {
         if (collision.name == "cut") {
             if (collision.gameObject.GetComponent<SpriteRenderer>().bounds.size.x >=
@@ -153,6 +174,8 @@ public class cut : MonoBehaviour{
         }
     }
 }
+//helper class to handle variables (this should be removed in the future and handled
+//only with the nodeManager class)
 class child {
     public child(GameObject g, Vector3 pos) {
         gObject = g;
