@@ -51,8 +51,8 @@ public class cut : MonoBehaviour{
             nmanager.currentItem = null;
             return;
         }
-		//handle touch inputs
-		if (Input.touchCount == 2) {
+		//handle touch inputs and scaling
+		if (Input.touchCount == 2 ) {
 			//hanlde zoom out here
 			Touch touchZero = Input.GetTouch (0);
 			Touch touchOne = Input.GetTouch (1);
@@ -70,7 +70,7 @@ public class cut : MonoBehaviour{
 
 			ResizeCut (deltaMagnitudeDiff);
 
-		} else {
+		}else {
 			//otherwise a normal move
 			start = transform.position;
 			offset = transform.position - GetHitPoint ();
@@ -84,6 +84,8 @@ public class cut : MonoBehaviour{
 	//code to help record the movements of the user
 	//TODO better recording to eventually play a 'movie'
     private void OnMouseUp() {
+		if (deleteMode.getDeleteMode ())
+			return;
         nmanager.moved(start, end, gameObject);
         nmanager.currentItem = null;
         foreach (child i in children) {
@@ -95,11 +97,28 @@ public class cut : MonoBehaviour{
     }
 	//change position when dragging
     private void OnMouseDrag() {
+		float deltaMagnitudeDiff = 0;
+		Vector2 diff = new Vector2(0,0);
+		RectTransform rt = (RectTransform)gameObject.transform;
+		Vector3 normalizedPointer = gameObject.transform.position - GetHitPoint ();
+		double radius = Mathf.Sqrt (normalizedPointer.x * normalizedPointer.x + normalizedPointer.y * normalizedPointer.y);
+		if (radius > (rt.rect.width * gameObject.transform.localScale.x-1.5f) / 2) {
+			// Find the position in the previous frame of each touch.
+			normalizedPointer = gameObject.transform.position - GetHitPoint ();
+			radius = Mathf.Sqrt (normalizedPointer.x * normalizedPointer.x + normalizedPointer.y * normalizedPointer.y);
+
+			// Find the difference in the distances between each frame.
+			diff += new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * 0.25f;
+			deltaMagnitudeDiff = Mathf.Sqrt (diff.x * diff.x + diff.y * diff.y);
+			ResizeCut (deltaMagnitudeDiff);
+			goto skip;
+		}
         nmanager.currentItem = gameObject;
         transform.position = GetHitPoint() + offset;
         foreach (child i in children) {
             i.updatePos(i.getObj().transform.position);
         }
+		skip: ;
     }
 	//handle scrolling with mousewhile and update cursor
     private void OnMouseOver() {
@@ -114,7 +133,7 @@ public class cut : MonoBehaviour{
         end = transform.position;
         pointer.resetCursor();
     }
-    private void ResizeCut(float scroll) {
+	private void ResizeCut(float scroll, Vector2 direction = new Vector2()) {
         if (scroll != 0f) {
             foreach (child i in children) {
                 i.getObj().transform.SetParent(null);
