@@ -4164,10 +4164,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   captureFrameRate: 10
   captureMode: 0
-  maxCapturedFrames: 50
+  maxCapturedFrames: 300
   playbackFrameRate: 30
   loopPlayback: 1
-  capturedCamera: {fileID: 0}
+  capturedCamera: {fileID: 1151458041}
 --- !u!114 &1151458048
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4180,8 +4180,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   recording: 0
-  capture: {fileID: 0}
-  preview: {fileID: 0}
+  capture: {fileID: 1151458047}
 --- !u!1 &1174576201
 GameObject:
   m_ObjectHideFlags: 0
