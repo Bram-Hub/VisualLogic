@@ -110,15 +110,14 @@ public class cut : MonoBehaviour{
 			// Find the difference in the distances between each frame.
 			diff += new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * 0.25f;
 			deltaMagnitudeDiff = Mathf.Sqrt (diff.x * diff.x + diff.y * diff.y);
-			ResizeCut (deltaMagnitudeDiff);
-			goto skip;
+			deltaMagnitudeDiff *= (diff.x <0 || diff.y < 0) ? -1 : 1;
+			//ResizeCut (deltaMagnitudeDiff);
 		}
         nmanager.currentItem = gameObject;
         transform.position = GetHitPoint() + offset;
         foreach (child i in children) {
             i.updatePos(i.getObj().transform.position);
         }
-		skip: ;
     }
 	//handle scrolling with mousewhile and update cursor
     private void OnMouseOver() {
@@ -133,7 +132,7 @@ public class cut : MonoBehaviour{
         end = transform.position;
         pointer.resetCursor();
     }
-	private void ResizeCut(float scroll, Vector2 direction = new Vector2()) {
+	private void ResizeCut(float scroll) {
         if (scroll != 0f) {
             foreach (child i in children) {
                 i.getObj().transform.SetParent(null);
@@ -163,17 +162,23 @@ public class cut : MonoBehaviour{
         }
         else {
             //the smaller cut should be the child
-            if (collision.gameObject.GetComponent<SpriteRenderer>().bounds.size.x ==
-                this.gameObject.GetComponent<SpriteRenderer>().bounds.size.x) return;
-            if (collision.gameObject.GetComponent<SpriteRenderer>().bounds.size.x >= 
-                this.gameObject.GetComponent<SpriteRenderer>().bounds.size.x) {
-                collision.gameObject.GetComponent<cut>().children.Add(new child(gameObject,gameObject.transform.position));
-                level++;            
-            }
-            else{
+			RectTransform other = (RectTransform) collision.gameObject.transform;
+			RectTransform current = (RectTransform) gameObject.transform;
+
+			Vector3 other_size = new Vector3(other.rect.x, other.rect.y ,0)* collision.gameObject.transform.localScale.magnitude;
+			Vector3 current_size = new Vector3(current.rect.x, current.rect.y,0) * gameObject.transform.localScale.magnitude;
+			//if the other cut is smaller than the current, scale it up
+
+			if (collision.gameObject.GetComponent<SpriteRenderer>().bounds.size.x == this.gameObject.GetComponent<SpriteRenderer>().bounds.size.x) return;
+			if (collision.gameObject.GetComponent<SpriteRenderer>().bounds.size.x >= 
+				this.gameObject.GetComponent<SpriteRenderer>().bounds.size.x) {
+				collision.gameObject.GetComponent<cut>().children.Add(new child(gameObject,gameObject.transform.position));
+				level++;            
+			}
+            
                //handle same size? 
 				//TODO: add auto-resize code
-            }
+            
         }
     }
 	//update level reverse of above function
