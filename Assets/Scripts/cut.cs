@@ -102,23 +102,12 @@ public class cut : MonoBehaviour{
 		RectTransform rt = (RectTransform)gameObject.transform;
 		Vector3 normalizedPointer = gameObject.transform.position - GetHitPoint ();
 		double radius = Mathf.Sqrt (normalizedPointer.x * normalizedPointer.x + normalizedPointer.y * normalizedPointer.y);
-		if (radius > (rt.rect.width * gameObject.transform.localScale.x-1.5f) / 2) {
-			// Find the position in the previous frame of each touch.
-			normalizedPointer = gameObject.transform.position - GetHitPoint ();
-			radius = Mathf.Sqrt (normalizedPointer.x * normalizedPointer.x + normalizedPointer.y * normalizedPointer.y);
 
-			// Find the difference in the distances between each frame.
-			diff += new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * 0.25f;
-			deltaMagnitudeDiff = Mathf.Sqrt (diff.x * diff.x + diff.y * diff.y);
-			ResizeCut (deltaMagnitudeDiff);
-			goto skip;
-		}
         nmanager.currentItem = gameObject;
         transform.position = GetHitPoint() + offset;
         foreach (child i in children) {
             i.updatePos(i.getObj().transform.position);
         }
-		skip: ;
     }
 	//handle scrolling with mousewhile and update cursor
     private void OnMouseOver() {
