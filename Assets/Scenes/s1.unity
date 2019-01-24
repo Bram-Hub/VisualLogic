@@ -2502,7 +2502,7 @@ GameObject:
   - component: {fileID: 598270063}
   - component: {fileID: 598270062}
   m_Layer: 5
-  m_Name: Button
+  m_Name: RecordButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2565,7 +2565,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 598270063}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1151458048}
+        m_MethodName: startStopRecord
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &598270063
@@ -4005,6 +4016,8 @@ GameObject:
   - component: {fileID: 1151458044}
   - component: {fileID: 1151458045}
   - component: {fileID: 1151458046}
+  - component: {fileID: 1151458047}
+  - component: {fileID: 1151458048}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -4138,6 +4151,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: 
   menuPanel: {fileID: 294811187}
+--- !u!114 &1151458047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1151458037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e8a0bd4ddee94e6dafbef7b86115db3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  captureFrameRate: 10
+  captureMode: 0
+  maxCapturedFrames: 300
+  playbackFrameRate: 30
+  loopPlayback: 1
+  capturedCamera: {fileID: 1151458041}
+--- !u!114 &1151458048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1151458037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 056385f15a22ec94fa796e6666049c83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  recording: 0
+  capture: {fileID: 1151458047}
 --- !u!1 &1174576201
 GameObject:
   m_ObjectHideFlags: 0
@@ -4416,7 +4459,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Save File
+  m_Text: Record
 --- !u!222 &1255650077
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5794,7 +5837,7 @@ Rigidbody2D:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1517950439}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
