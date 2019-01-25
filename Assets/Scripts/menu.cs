@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class menu : MonoBehaviour, IPointerDownHandler {
     bool showMenu;
     GameObject menuPanel;
+	public GameObject timeLineButton;
 	// Use this for initialization
     private void Start() {
         showMenu = false;
@@ -26,12 +27,14 @@ public class menu : MonoBehaviour, IPointerDownHandler {
             foreach (GameObject g in vars) {
                 g.GetComponent<SpriteRenderer>().enabled = true;
             }
+			timeLineButton.SetActive (true);
         } else {
             showMenu = true;
             gameObject.SetActive(showMenu);
             foreach (GameObject g in vars) {
                 g.GetComponent<SpriteRenderer>().enabled = false;
             }
+			timeLineButton.SetActive (false);
         }
     }
     public void reload() {
