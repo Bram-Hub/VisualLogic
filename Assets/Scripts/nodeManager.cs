@@ -7,6 +7,7 @@ public class nodeManager : MonoBehaviour {
     mousePointer mPointer;
     public timelineController timeLine;
     public GameObject currentItem;
+	public int cut_count = 0;
 	// Use this for initialization
 	void Start () {
         mPointer = Camera.main.GetComponent<mousePointer>();
@@ -20,15 +21,21 @@ public class nodeManager : MonoBehaviour {
         GameObject original = GameObject.Find(type);
         GameObject copy;
         copy = Instantiate(original,new Vector2(8,5), Quaternion.identity);
-        copy.name = type;
         copy.tag = "draggable";
         copy.transform.localScale = new Vector3(1, 1, 1);
         float scale = 0.6f;
-        if(type != "cut" && type != "titleCut"){
-            copy.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-            copy.transform.position = new Vector3(copy.transform.position.x,copy.transform.position.y, 0.0f); ;
-        }
-        undoStack.push(new move(copy, move.action.created));
+		if (type != "cut") {
+			copy.transform.localScale = new Vector3 (0.5f, 0.5f, 0.5f);
+			copy.transform.position = new Vector3 (copy.transform.position.x, copy.transform.position.y, 0f);
+		} else {
+			copy.name = type + "_" + cut_count;
+			GameObject inner = GameObject.Find ("innerCut");
+			GameObject innerCopy = Instantiate(inner,new Vector2(8,5), Quaternion.identity);
+			innerCopy.name = "innerCut_" + cut_count;
+			innerCopy.tag = "draggable";
+			innerCopy.transform.localScale = new Vector3(1, 1, 1);
+			++cut_count;
+		}
     }
     public GameObject createAtUI(string type, Vector3 pos) {
         GameObject original = GameObject.Find(type);
@@ -36,16 +43,23 @@ public class nodeManager : MonoBehaviour {
         copy = Instantiate(original, pos, Quaternion.identity);
         copy.name = type;
         copy.tag = "draggable";
-        copy.transform.localScale = new Vector3(1, 1, 1);
         if (type != "cut") {
-            copy.transform.position = new Vector3(copy.transform.position.x, copy.transform.position.y, 0);
+            copy.transform.position = new Vector3(copy.transform.position.x, copy.transform.position.y, 0f);
             copy.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-        }
+		}else {
+			copy.name = type + "_" + cut_count;
+			GameObject inner = GameObject.Find ("innerCut");
+			GameObject innerCopy = Instantiate(inner,pos, Quaternion.identity);
+			innerCopy.name = "innerCut_" + cut_count;
+			innerCopy.tag = "draggable";
+			innerCopy.transform.localScale = new Vector3(1, 1, 1);
+			++cut_count;
+		}
         return copy;
     }
     public GameObject createAtPos(string type, Vector2 pos) {
-        GameObject copy = createAtUI(type, pos);
-        undoStack.push(new move(copy, move.action.created));
+		Vector3 pos_ = new Vector3 (pos.x, pos.y, 0.0f);
+        GameObject copy = createAtUI(type, pos_);
         return copy;
     }
     public void moved(Vector2 origin, Vector2 newPos, GameObject g) {

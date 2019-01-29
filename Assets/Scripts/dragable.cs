@@ -70,24 +70,14 @@ public class dragable : MonoBehaviour{
         return ray.GetPoint(dist);
     }
     private void OnTriggerEnter2D(Collider2D collision) {
-        if(collision.tag != "background" && collision.name != "cut" && collision.name != "titleCut" && collision.name != "titleCut2"){
+		if (collision.GetComponent<SpriteRenderer> ().sortingLayerName == "Cuts")
+			return;
+		if(collision.tag != "background")
             hit = true;
-        }
-        if(collision.name == "cut"){
-            float z = transform.position.z - 1.2f;
-            uiDrag.setNewPos(z);
-            gameObject.transform.position = new Vector3(transform.position.x, transform.position.y, z);
-        }
     }
-    private void OnTriggerExit2D(Collider2D collision) {
-        hit = false;
-        rend.color = Color.white;
-        uiDrag.resetUpdate();
-        if (collision.name == "cut") {
-            float z = transform.position.z + 1.2f;
-            gameObject.transform.position = new Vector3(transform.position.x, transform.position.y, z);
-        }
-    }
+	private void OnTriggerExit2D(Collider2D collision){
+		hit = false;
+	}
     public bool getDragStatus() {
         return isDragging;
     }
