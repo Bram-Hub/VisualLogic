@@ -49,7 +49,7 @@ public class cut : MonoBehaviour{
 		mouseDown = false;
 	}
 	void OnMouseDrag(){
-		transform.localScale = (transform.position - ( GetHitPoint() )) * 0.65f ;
+		transform.localScale = ABS((transform.position - ( GetHitPoint() )) * 0.65f );
 		child.transform.localScale = transform.localScale;
 	}
 	//normalize the mouseposition from a 3d perspective to a 2d one,
@@ -60,5 +60,9 @@ public class cut : MonoBehaviour{
 		float dist;
 		plane.Raycast (ray, out dist);
 		return ray.GetPoint(dist);
+	}
+
+	Vector3 ABS(Vector3 v){
+		return new Vector3 (Mathf.Abs( v.x) , Mathf.Abs (v.y) , Mathf.Abs (v.z));
 	}
 }

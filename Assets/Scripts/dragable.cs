@@ -52,13 +52,11 @@ public class dragable : MonoBehaviour{
     }
     private void OnMouseEnter() {
         nmanager.currentItem = gameObject;
-        pointer.mouseOverCursor();
         isMouseOver = true;
         rend.color = Color.blue;
     }
     private void OnMouseExit() {
         nmanager.currentItem = null;
-        pointer.resetCursor();
         isMouseOver = false;
         rend.color = Color.white;        
     }

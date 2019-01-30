@@ -39,7 +39,7 @@ public class nodeManager : MonoBehaviour {
     }
     public GameObject createAtUI(string type, Vector3 pos) {
         GameObject original = GameObject.Find(type);
-        GameObject copy;
+		GameObject copy, innerCopy = null;
         copy = Instantiate(original, pos, Quaternion.identity);
         copy.name = type;
         copy.tag = "draggable";
@@ -49,13 +49,13 @@ public class nodeManager : MonoBehaviour {
 		}else {
 			copy.name = type + "_" + cut_count;
 			GameObject inner = GameObject.Find ("innerCut");
-			GameObject innerCopy = Instantiate(inner,pos, Quaternion.identity);
+			innerCopy = Instantiate(inner,pos, Quaternion.identity);
 			innerCopy.name = "innerCut_" + cut_count;
 			innerCopy.tag = "draggable";
 			innerCopy.transform.localScale = new Vector3(1, 1, 1);
 			++cut_count;
 		}
-        return copy;
+		return (type != "cut") ? copy : innerCopy ;
     }
     public GameObject createAtPos(string type, Vector2 pos) {
 		Vector3 pos_ = new Vector3 (pos.x, pos.y, 0.0f);

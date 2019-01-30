@@ -11,7 +11,7 @@ using UnityEngine.EventSystems;
 public class innerCut : MonoBehaviour {
 	public GameObject parent;
 	Vector3 offset;
-	bool mouseOver, mouseDown;
+	bool mouseOver, mouseDown, mouseDragging;
 	nodeManager nManager;
 	// Use this for initialization
 	delete deleteMode;
@@ -34,19 +34,17 @@ public class innerCut : MonoBehaviour {
 	void Update () {
 		if (!parent)
 			return;
-		if (!mouseDown || !mouseOver)
-			transform.position = parent.transform.position;
-
-		transform.position = new Vector3 (transform.position.x, transform.position.y, 0.0f);
 
 		renderer.color = (renderer.sortingOrder % 2 != 0) ? tru : fal;
-	
+		parent.transform.position = transform.position;
 	}
 
 	void OnMouseOver(){
 		mouseOver = true;
 		nManager.currentItem = gameObject;
 		float scroll = Input.GetAxis ("Mouse ScrollWheel");
+		if (scroll == 0f)
+			return;
 		if (scroll > 0f) {
 			transform.localScale += new Vector3 (scroll, scroll, 0);
 		} else if (scroll < 0f) {
@@ -60,29 +58,43 @@ public class innerCut : MonoBehaviour {
 	}
 	void OnMouseDown(){
 		mouseDown = true;
+		//since deleting a gameobject doesn't trigger 'onTriggerExit2D' we make the object invisible and
+		//manually move it outside, then delete it
 		if (deleteMode.getDeleteMode ()){
-			Destroy (parent);
+			foreach (GameObject i in getChildCuts()) {
+				cascadeUpdateLevel (false, i);
+			}
+			GetComponent<SpriteRenderer>().enabled = false;
+			parent.GetComponent<SpriteRenderer> ().enabled = false;
+			transform.position = new Vector3 (-200, -200, -200);
+			parent.transform.position = transform.position;
 			Destroy (gameObject);
+			Destroy (parent);
 		}
 		offset = transform.position - GetHitPoint ();
 	}
 	void OnMouseDrag(){
+		mouseDragging = true;
+
 		transform.position = GetHitPoint () + offset;
 		parent.transform.position = transform.position;
 
 		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
 		Collider2D[] overlap = Physics2D.OverlapAreaAll (coll.bounds.min, coll.bounds.max);
 		foreach (Collider2D i in overlap) {
+			if (i == GetComponent<Collider2D> ())
+				continue;
 			if (i.gameObject.name.Contains ("cut")) 
 				continue;
 			if (i.gameObject.name.Contains ("innerCut") && !isGreater (i)) {
 				i.transform.SetParent (transform);
-				continue;
+			} else if(i.GetComponent<SpriteRenderer>().sortingLayerName == "Variables") {
+				i.transform.SetParent (transform);
 			}
-			i.transform.SetParent (transform);
 		}
 	}
 	void OnMouseUp(){
+		mouseDragging = false;
 		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
 		Collider2D[] overlap = Physics2D.OverlapAreaAll (coll.bounds.min, coll.bounds.max);
 		foreach (Collider2D i in overlap) {
@@ -112,7 +124,7 @@ public class innerCut : MonoBehaviour {
 
 		//the smaller cut should be the child
 		if(!isGreater(collision)){
-			collision.GetComponent<SpriteRenderer> ().sortingOrder += 1;
+			updateLevel(true, collision.gameObject);
 		}
 	}
 	void OnTriggerExit2D(Collider2D collision){
@@ -126,7 +138,7 @@ public class innerCut : MonoBehaviour {
 
 		//the smaller cut should be the child
 		if(!isGreater(collision) ){
-			collision.GetComponent<SpriteRenderer> ().sortingOrder -= 1;
+			updateLevel (false, collision.gameObject);
 		}
 	}
 	bool isGreater( Collider2D b){
@@ -136,5 +148,38 @@ public class innerCut : MonoBehaviour {
 		Vector3 otherSize = otherCollider.bounds.size;
 
 		return (thisSize.x < otherSize.x && thisSize.y < otherSize.y);
+	}
+	public void updateLevel(bool increase, GameObject obj){
+		obj.GetComponent<SpriteRenderer> ().sortingOrder += (increase) ? 1 : -1;
+	}
+	public void cascadeUpdateLevel(bool increase, GameObject obj){
+		obj.GetComponent<SpriteRenderer> ().sortingOrder += (increase) ? 1 : -1;
+		foreach (GameObject i in getAllChildCuts()) {
+			i.GetComponent<SpriteRenderer> ().sortingOrder += (increase) ? 1 : -1;
+		}
+	}
+	public List<GameObject> getAllChildCuts(){
+		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
+		Collider2D[] overlap = Physics2D.OverlapAreaAll (coll.bounds.min, coll.bounds.max);
+		List<GameObject> result = new List<GameObject> ();
+		foreach (Collider2D i in overlap) {
+			if (!i.name.Contains ("innerCut"))
+				continue;
+			if (i.GetComponent<SpriteRenderer> ().sortingOrder > GetComponent<SpriteRenderer> ().sortingOrder )
+				result.Add (i.gameObject);
+		}
+		return result;
+	}
+	public List<GameObject> getChildCuts(){
+		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
+		Collider2D[] overlap = Physics2D.OverlapAreaAll (coll.bounds.min, coll.bounds.max);
+		List<GameObject> result = new List<GameObject> ();
+		foreach (Collider2D i in overlap) {
+			if (!i.name.Contains ("innerCut"))
+				continue;
+			if (i.GetComponent<SpriteRenderer> ().sortingOrder - 1 == GetComponent<SpriteRenderer> ().sortingOrder )
+				result.Add (i.gameObject);
+		}
+		return result;
 	}
 }
