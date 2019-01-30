@@ -24,7 +24,8 @@ public class backGround : MonoBehaviour {
         }
     }
     private void Update() {
-        if (nManager.currentItem != null) return;
+        if (nManager.currentItem != null) 
+			return;
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (scroll > 0f && Camera.main.orthographicSize <= 10f) {
             Camera.main.orthographicSize += scroll;
