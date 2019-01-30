@@ -42,6 +42,7 @@ public class innerCut : MonoBehaviour {
 	void OnMouseOver(){
 		mouseOver = true;
 		nManager.currentItem = gameObject;
+		parent.GetComponent<cut> ().showHighlight (true);
 		float scroll = Input.GetAxis ("Mouse ScrollWheel");
 		if (scroll == 0f)
 			return;
@@ -55,6 +56,7 @@ public class innerCut : MonoBehaviour {
 	void OnMouseExit(){
 		mouseOver = false;
 		nManager.currentItem = null;
+		parent.GetComponent<cut> ().showHighlight (false);
 	}
 	void OnMouseDown(){
 		mouseDown = true;
@@ -71,7 +73,35 @@ public class innerCut : MonoBehaviour {
 			Destroy (gameObject);
 			Destroy (parent);
 		}
-		offset = transform.position - GetHitPoint ();
+
+		//handle touch inputs and scaling
+		if (Input.touchCount == 2) {
+			//hanlde zoom out here
+			Touch touchZero = Input.GetTouch (0);
+			Touch touchOne = Input.GetTouch (1);
+
+			// Find the position in the previous frame of each touch.
+			Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
+			Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+
+			// Find the magnitude of the vector (the distance) between the touches in each frame.
+			float prevTouchDeltaMag = (touchZeroPrevPos - touchOnePrevPos).magnitude;
+			float touchDeltaMag = (touchZero.position - touchOne.position).magnitude;
+
+			// Find the difference in the distances between each frame.
+			float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
+
+			if (deltaMagnitudeDiff == 0f)
+				return;
+			if (deltaMagnitudeDiff > 0f) {
+				transform.localScale += new Vector3 (deltaMagnitudeDiff, deltaMagnitudeDiff, 0);
+			} else if (deltaMagnitudeDiff < 0f) {
+				transform.localScale -= new Vector3 (-deltaMagnitudeDiff, -deltaMagnitudeDiff, 0);
+			}
+			parent.transform.localScale = transform.localScale;
+		} else {
+			offset = transform.position - GetHitPoint ();
+		}
 	}
 	void OnMouseDrag(){
 		mouseDragging = true;

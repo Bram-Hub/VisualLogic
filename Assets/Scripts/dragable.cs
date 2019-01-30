@@ -12,12 +12,16 @@ public class dragable : MonoBehaviour{
     Vector2 start, end;
     public UIdrag uiDrag;
     public bool hit, isDragging, isMouseOver,clicked;
+
+	Color highlight;
     void Start() {
         rend = gameObject.GetComponent<SpriteRenderer>();
         pointer = Camera.main.GetComponent<mousePointer>();
         deleteMode = GameObject.Find("DeleteButton").GetComponent<delete>();
         nmanager = GameObject.Find("lev_0").GetComponent<nodeManager>();
         hit = isDragging = isMouseOver = clicked= false;
+
+		ColorUtility.TryParseHtmlString ("#78A1FFBA", out highlight);
     }
     private void Update() {
         if (hit) {
@@ -53,8 +57,13 @@ public class dragable : MonoBehaviour{
     private void OnMouseEnter() {
         nmanager.currentItem = gameObject;
         isMouseOver = true;
-        rend.color = Color.blue;
+		rend.color = highlight;
     }
+	private void OnMouseOver(){
+		nmanager.currentItem = gameObject;
+		isMouseOver = true;
+		rend.color = highlight;
+	}
     private void OnMouseExit() {
         nmanager.currentItem = null;
         isMouseOver = false;

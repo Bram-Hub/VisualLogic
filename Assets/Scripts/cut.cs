@@ -16,12 +16,14 @@ public class cut : MonoBehaviour{
 	bool mouseOver, mouseDown;
 	//are we in select or delete mode?
 	delete deleteMode;
-
+	public GameObject highlight;
 	Vector3 offset;
 	void Start(){
 		string childName = gameObject.name.Substring(gameObject.name.IndexOf ('_') + 1);
 		child = GameObject.Find ("innerCut_" + childName);
 		deleteMode = GameObject.Find ("DeleteButton").GetComponent<delete> ();
+		highlight = transform.GetChild (0).gameObject;
+		showHighlight (false);
 	}
 
 	void Update(){
@@ -29,10 +31,12 @@ public class cut : MonoBehaviour{
 		if (!child)
 			return;
 		GetComponent<SpriteRenderer> ().sortingOrder = child.GetComponent<SpriteRenderer> ().sortingOrder;
+		transform.GetChild(0).GetComponent<SpriteRenderer>().sortingOrder =  GetComponent<SpriteRenderer> ().sortingOrder;
 	}
 
 	void OnMouseOver(){
 		mouseOver = true;
+		showHighlight (true);
 	}
 	void OnMouseDown(){
 		mouseDown = true;
@@ -44,6 +48,7 @@ public class cut : MonoBehaviour{
 	}
 	void OnMouseExit(){
 		mouseOver = false;
+		showHighlight (false);
 	}
 	void OnMouseUp(){
 		mouseDown = false;
@@ -64,5 +69,9 @@ public class cut : MonoBehaviour{
 
 	Vector3 ABS(Vector3 v){
 		return new Vector3 (Mathf.Abs( v.x) , Mathf.Abs (v.y) , Mathf.Abs (v.z));
+	}
+
+	public void showHighlight(bool show){
+		highlight.GetComponent<SpriteRenderer> ().enabled = show;
 	}
 }
