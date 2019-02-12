@@ -18,6 +18,8 @@ public class cut : MonoBehaviour{
 	delete deleteMode;
 	public GameObject highlight;
 	Vector3 offset;
+	Vector3 mouseDownPos;
+	Vector3 center = new Vector3(8,5,0);
 	void Start(){
 		string childName = gameObject.name.Substring(gameObject.name.IndexOf ('_') + 1);
 		child = GameObject.Find ("innerCut_" + childName);
@@ -45,6 +47,7 @@ public class cut : MonoBehaviour{
 			Destroy (gameObject);
 		}
 		offset = transform.position - GetHitPoint ();
+		mouseDownPos = (GetHitPoint() - transform.position);
 	}
 	void OnMouseExit(){
 		mouseOver = false;
@@ -54,7 +57,12 @@ public class cut : MonoBehaviour{
 		mouseDown = false;
 	}
 	void OnMouseDrag(){
-		transform.localScale = ABS((transform.position - ( GetHitPoint() )) * 0.65f );
+		float speed= 15f;
+		Vector3 diffVect = ABS((transform.position - ( GetHitPoint() )) * 0.65f );
+		float mouseDiff = (mouseDownPos - (GetHitPoint () - transform.position)).magnitude;
+		if (mouseDiff <= 0.1)
+			return;
+		transform.localScale = Vector3.Lerp(transform.localScale, diffVect, speed * Time.deltaTime);
 		child.transform.localScale = transform.localScale;
 	}
 	//normalize the mouseposition from a 3d perspective to a 2d one,

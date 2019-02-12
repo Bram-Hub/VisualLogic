@@ -4381,7 +4381,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   recording: 0
-  capture: {fileID: 1151458047}
 --- !u!1 &1174576201
 GameObject:
   m_ObjectHideFlags: 0
@@ -5759,11 +5758,11 @@ RectTransform:
   m_Father: {fileID: 1412997954}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 321.32, y: -187.63}
-  m_SizeDelta: {x: -642.67, y: -375.26}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -0.014984131, y: 0}
+  m_SizeDelta: {x: 81.33002, y: 31.73999}
+  m_Pivot: {x: 1, y: 0}
 --- !u!114 &1492840237
 MonoBehaviour:
   m_ObjectHideFlags: 0

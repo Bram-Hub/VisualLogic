@@ -152,9 +152,13 @@ public class innerCut : MonoBehaviour {
 		if (!collision.name.Contains ("innerCut"))
 			return;
 
-		//the smaller cut should be the child
-		if(!isGreater(collision)){
-			updateLevel(true, collision.gameObject);
+		if (!isGreater (collision) && !isEqual (collision)) {
+			//the other cut is smaller than this one
+			updateLevel (true, collision.gameObject);
+		} else if (isGreater (collision)) {
+			//the other cut is larger than this one
+		} else {
+			//the other cut is the same size as this one
 		}
 	}
 	void OnTriggerExit2D(Collider2D collision){
@@ -166,9 +170,13 @@ public class innerCut : MonoBehaviour {
 		if (!collision.name.Contains ("innerCut"))
 			return;
 
-		//the smaller cut should be the child
-		if(!isGreater(collision) ){
+		if (!isGreater (collision) && !isEqual (collision)) {
+			//the other cut is smaller than this one
 			updateLevel (false, collision.gameObject);
+		} else if (isGreater (collision)) {
+			//the other cut is larger than this one
+		} else {
+			//the other cut is the same size as this one
 		}
 	}
 	bool isGreater( Collider2D b){
@@ -178,6 +186,14 @@ public class innerCut : MonoBehaviour {
 		Vector3 otherSize = otherCollider.bounds.size;
 
 		return (thisSize.x < otherSize.x && thisSize.y < otherSize.y);
+	}
+	bool isEqual(Collider2D b){
+		PolygonCollider2D thisCollider = GetComponent<PolygonCollider2D> ();
+		PolygonCollider2D otherCollider = b.GetComponent<PolygonCollider2D> ();
+		Vector3 thisSize = thisCollider.bounds.size;
+		Vector3 otherSize = otherCollider.bounds.size;
+
+		return (thisSize.x == otherSize.x && thisSize.y == otherSize.y);
 	}
 	public void updateLevel(bool increase, GameObject obj){
 		obj.GetComponent<SpriteRenderer> ().sortingOrder += (increase) ? 1 : -1;
