@@ -16,8 +16,9 @@ public class innerCut : MonoBehaviour {
 	// Use this for initialization
 	delete deleteMode;
 	SpriteRenderer renderer;
-
 	Color tru, fal;
+
+	mousePointer mPointer;
 	void Start () {
 		//innerCut_
 		string parName = gameObject.name.Substring(gameObject.name.IndexOf ('_') + 1);
@@ -60,6 +61,7 @@ public class innerCut : MonoBehaviour {
 	}
 	void OnMouseDown(){
 		mouseDown = true;
+
 		//since deleting a gameobject doesn't trigger 'onTriggerExit2D' we make the object invisible and
 		//manually move it outside, then delete it
 		if (deleteMode.getDeleteMode ()){
@@ -72,6 +74,8 @@ public class innerCut : MonoBehaviour {
 			parent.transform.position = transform.position;
 			Destroy (gameObject);
 			Destroy (parent);
+
+			return;
 		}
 
 		//handle touch inputs and scaling
@@ -116,7 +120,7 @@ public class innerCut : MonoBehaviour {
 				continue;
 			if (i.gameObject.name.Contains ("cut")) 
 				continue;
-			if (i.gameObject.name.Contains ("innerCut") && !isGreater (i)) {
+			if (i.gameObject.name.Contains ("innerCut") && !isGreater (i) && !isEqual(i) ) {
 				i.transform.SetParent (transform);
 			} else if(i.GetComponent<SpriteRenderer>().sortingLayerName == "Variables") {
 				i.transform.SetParent (transform);
@@ -190,10 +194,7 @@ public class innerCut : MonoBehaviour {
 	bool isEqual(Collider2D b){
 		PolygonCollider2D thisCollider = GetComponent<PolygonCollider2D> ();
 		PolygonCollider2D otherCollider = b.GetComponent<PolygonCollider2D> ();
-		Vector3 thisSize = thisCollider.bounds.size;
-		Vector3 otherSize = otherCollider.bounds.size;
-
-		return (thisSize.x == otherSize.x && thisSize.y == otherSize.y);
+		return thisCollider.bounds.size == otherCollider.bounds.size;
 	}
 	public void updateLevel(bool increase, GameObject obj){
 		obj.GetComponent<SpriteRenderer> ().sortingOrder += (increase) ? 1 : -1;

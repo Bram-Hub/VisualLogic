@@ -13,20 +13,18 @@ public class dragable : MonoBehaviour{
     public UIdrag uiDrag;
     public bool hit, isDragging, isMouseOver,clicked;
 
-	Color highlight;
+	Color highlight, normal;
     void Start() {
         rend = gameObject.GetComponent<SpriteRenderer>();
         pointer = Camera.main.GetComponent<mousePointer>();
         deleteMode = GameObject.Find("DeleteButton").GetComponent<delete>();
         nmanager = GameObject.Find("lev_0").GetComponent<nodeManager>();
         hit = isDragging = isMouseOver = clicked= false;
-
+		normal = GetComponent<SpriteRenderer> ().color;
 		ColorUtility.TryParseHtmlString ("#78A1FFBA", out highlight);
     }
     private void Update() {
-        if (hit) {
-            rend.color = Color.red;
-        }
+		rend.color = (hit) ? Color.red : normal;
     }
     private void OnMouseDown() {
         clicked = true;
@@ -79,10 +77,13 @@ public class dragable : MonoBehaviour{
     private void OnTriggerEnter2D(Collider2D collision) {
 		if (collision.GetComponent<SpriteRenderer> ().sortingLayerName == "Cuts")
 			return;
-		if(collision.tag != "background")
-            hit = true;
+
+		hit = true;
     }
 	private void OnTriggerExit2D(Collider2D collision){
+		if (collision.GetComponent<SpriteRenderer> ().sortingLayerName == "Cuts")
+			return;
+
 		hit = false;
 	}
     public bool getDragStatus() {

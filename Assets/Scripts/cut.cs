@@ -20,6 +20,7 @@ public class cut : MonoBehaviour{
 	Vector3 offset;
 	Vector3 mouseDownPos;
 	Vector3 center = new Vector3(8,5,0);
+
 	void Start(){
 		string childName = gameObject.name.Substring(gameObject.name.IndexOf ('_') + 1);
 		child = GameObject.Find ("innerCut_" + childName);
@@ -34,6 +35,16 @@ public class cut : MonoBehaviour{
 			return;
 		GetComponent<SpriteRenderer> ().sortingOrder = child.GetComponent<SpriteRenderer> ().sortingOrder;
 		transform.GetChild(0).GetComponent<SpriteRenderer>().sortingOrder =  GetComponent<SpriteRenderer> ().sortingOrder;
+
+		if (transform.localScale.x <= 0.15f) {
+			transform.localScale = new Vector3 (0.16f, transform.localScale.y, 0);
+			child.transform.localScale = transform.localScale;
+		}
+
+		if (transform.localScale.y <= 0.15f) {
+			transform.localScale = new Vector3 (transform.position.x, 0.16f, 0);
+			child.transform.localScale = transform.localScale;
+		}
 	}
 
 	void OnMouseOver(){
@@ -58,11 +69,15 @@ public class cut : MonoBehaviour{
 	}
 	void OnMouseDrag(){
 		float speed= 15f;
+
 		Vector3 diffVect = ABS((transform.position - ( GetHitPoint() )) * 0.65f );
 		float mouseDiff = (mouseDownPos - (GetHitPoint () - transform.position)).magnitude;
 		if (mouseDiff <= 0.1)
 			return;
-		transform.localScale = Vector3.Lerp(transform.localScale, diffVect, speed * Time.deltaTime);
+
+		//change the scale unless the difference is too close to 0 (this would cause undefined behavior)
+		if(diffVect.y >= 0.1 && diffVect.x >= 0.1)
+			transform.localScale = Vector3.Lerp(transform.localScale, diffVect, speed * Time.deltaTime);
 		child.transform.localScale = transform.localScale;
 	}
 	//normalize the mouseposition from a 3d perspective to a 2d one,

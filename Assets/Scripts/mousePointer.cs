@@ -6,6 +6,8 @@ public class mousePointer : MonoBehaviour {
     static Texture2D pointerIcon, scaleIcon;
     CursorMode cursorMode;
     Vector2 hotSpot;
+	Ray ray;
+	RaycastHit2D hit;
     // Use this for initialization
     void Start () {
         pointerIcon = Resources.Load("pointer") as Texture2D;
@@ -22,8 +24,4 @@ public class mousePointer : MonoBehaviour {
     public void mouseOverCursor() {
         Cursor.SetCursor(pointerIcon, hotSpot, cursorMode);
     }
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }
