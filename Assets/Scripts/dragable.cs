@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 public class dragable : MonoBehaviour{
     Vector3 inputPos, offset;
     SpriteRenderer rend;
-    mousePointer pointer;
+    mousePointer mPointer;
     nodeManager nmanager;
     delete deleteMode;
     Vector2 start, end;
@@ -16,7 +16,7 @@ public class dragable : MonoBehaviour{
 	Color highlight, normal;
     void Start() {
         rend = gameObject.GetComponent<SpriteRenderer>();
-        pointer = Camera.main.GetComponent<mousePointer>();
+        mPointer = Camera.main.GetComponent<mousePointer>();
         deleteMode = GameObject.Find("DeleteButton").GetComponent<delete>();
         nmanager = GameObject.Find("lev_0").GetComponent<nodeManager>();
         hit = isDragging = isMouseOver = clicked= false;
@@ -24,25 +24,45 @@ public class dragable : MonoBehaviour{
 		ColorUtility.TryParseHtmlString ("#78A1FFBA", out highlight);
     }
     private void Update() {
-		rend.color = (hit) ? Color.red : normal;
+		if (!isMouseOver && hit)
+			rend.color = Color.red;
     }
     private void OnMouseDown() {
         clicked = true;
+
         if (deleteMode.getDeleteMode()){
             nmanager.delete(gameObject);
-            pointer.resetCursor();
+            mPointer.resetCursor();
             isDragging = hit = isMouseOver = false;
             return;
         }
+
+		if (Input.GetKey (KeyCode.LeftShift)) {
+			mPointer.addSelectedObject (gameObject);
+		}
+
         start = transform.position;
         isDragging = true;
         offset = transform.position - GetHitPoint();
+
+		//if there are any selected objects move them with this one
+		if (!mPointer.selectedObjects.Contains (gameObject))
+			return;
+		foreach (GameObject j in mPointer.selectedObjects){
+			j.transform.SetParent (transform);
+		}
     }
     private void OnMouseUp() {
         end = transform.position;
         nmanager.moved(start, end, gameObject);
         isDragging = clicked = false;
         nmanager.currentItem = null;
+
+		if (mPointer.selectedObjects.Contains (gameObject)) {
+			foreach (GameObject i in mPointer.selectedObjects) {
+				i.transform.SetParent (null);
+			}
+		}
     }
     private void OnMouseDrag() {
         clicked = true;
@@ -51,6 +71,13 @@ public class dragable : MonoBehaviour{
             isDragging = true;
             transform.position = GetHitPoint() + offset;
         }
+
+		//if there are any selected objects move them with this one
+		if (!mPointer.selectedObjects.Contains (gameObject))
+			return;
+		foreach (GameObject j in mPointer.selectedObjects){
+			j.transform.SetParent (transform);
+		}
     }
     private void OnMouseEnter() {
         nmanager.currentItem = gameObject;
@@ -60,12 +87,12 @@ public class dragable : MonoBehaviour{
 	private void OnMouseOver(){
 		nmanager.currentItem = gameObject;
 		isMouseOver = true;
-		rend.color = highlight;
+		showHighlight (true);
 	}
     private void OnMouseExit() {
         nmanager.currentItem = null;
         isMouseOver = false;
-        rend.color = Color.white;        
+		showHighlight (false);       
     }
     private Vector3 GetHitPoint() {
         Plane plane = new Plane(Camera.main.transform.forward, transform.position);
@@ -92,4 +119,8 @@ public class dragable : MonoBehaviour{
     public bool getMouseOverStatus() {
         return isMouseOver;
     }
+
+	public void showHighlight(bool x){
+		rend.color = (x) ? highlight : normal;
+	}
 }

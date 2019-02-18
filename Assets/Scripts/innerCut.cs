@@ -11,20 +11,21 @@ using UnityEngine.EventSystems;
 public class innerCut : MonoBehaviour {
 	public GameObject parent;
 	Vector3 offset;
-	bool mouseOver, mouseDown, mouseDragging;
+	public bool mouseOver, mouseDown, mouseDragging;
 	nodeManager nManager;
+	mousePointer mPointer;
 	// Use this for initialization
 	delete deleteMode;
 	SpriteRenderer renderer;
 	Color tru, fal;
 
-	mousePointer mPointer;
 	void Start () {
 		//innerCut_
 		string parName = gameObject.name.Substring(gameObject.name.IndexOf ('_') + 1);
 		parent = GameObject.Find ("cut_" + parName);
 		deleteMode = GameObject.Find ("DeleteButton").GetComponent<delete> ();
 		nManager = GameObject.Find ("lev_0").GetComponent<nodeManager>();
+		mPointer = Camera.main.GetComponent<mousePointer> ();
 		renderer = GetComponent<SpriteRenderer> ();
 
 		ColorUtility.TryParseHtmlString ("#FFFFFFBD", out tru);
@@ -78,6 +79,11 @@ public class innerCut : MonoBehaviour {
 			return;
 		}
 
+		//if shift click then add this object to list of select objects
+		if (Input.GetKey (KeyCode.LeftShift)) {
+			mPointer.addSelectedObject (gameObject);
+		}
+
 		//handle touch inputs and scaling
 		if (Input.touchCount == 2) {
 			//hanlde zoom out here
@@ -106,6 +112,12 @@ public class innerCut : MonoBehaviour {
 		} else {
 			offset = transform.position - GetHitPoint ();
 		}
+		//if there are any selected objects move them with this one
+		if (!mPointer.selectedObjects.Contains (gameObject))
+			return;
+		foreach (GameObject j in mPointer.selectedObjects){
+			j.transform.SetParent (transform);
+		}
 	}
 	void OnMouseDrag(){
 		mouseDragging = true;
@@ -126,15 +138,24 @@ public class innerCut : MonoBehaviour {
 				i.transform.SetParent (transform);
 			}
 		}
+		//if there are any selected objects move them with this one
+		if (!mPointer.selectedObjects.Contains (gameObject))
+			return;
+		foreach (GameObject j in mPointer.selectedObjects){
+			j.transform.SetParent (transform);
+		}
 	}
 	void OnMouseUp(){
 		mouseDragging = false;
 		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
 		Collider2D[] overlap = Physics2D.OverlapAreaAll (coll.bounds.min, coll.bounds.max);
 		foreach (Collider2D i in overlap) {
-			if (i.gameObject.name.Contains ("cut"))
-				continue;
 			i.transform.SetParent (null);
+		}
+		if (mPointer.selectedObjects.Contains (gameObject)) {
+			foreach (GameObject i in mPointer.selectedObjects) {
+				i.transform.SetParent (null);
+			}
 		}
 		transform.localPosition = new Vector3 (transform.position.x, transform.position.y, 0f);
 		mouseDown = false;

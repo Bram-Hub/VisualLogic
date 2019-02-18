@@ -49,7 +49,8 @@ public class cut : MonoBehaviour{
 
 	void OnMouseOver(){
 		mouseOver = true;
-		showHighlight (true);
+		if(child.GetComponent<innerCut>().mouseOver)
+			showHighlight (true);
 	}
 	void OnMouseDown(){
 		mouseDown = true;
