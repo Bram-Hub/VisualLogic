@@ -81,8 +81,8 @@ public class dragable : MonoBehaviour{
     }
     private void OnMouseEnter() {
         nmanager.currentItem = gameObject;
+		showHighlight (true);
         isMouseOver = true;
-		rend.color = highlight;
     }
 	private void OnMouseOver(){
 		nmanager.currentItem = gameObject;

@@ -41,10 +41,15 @@ public class innerCut : MonoBehaviour {
 		parent.transform.position = transform.position;
 	}
 
+	void OnMouseEnter(){
+		nManager.currentItem = gameObject;
+	}
+
 	void OnMouseOver(){
 		mouseOver = true;
-		nManager.currentItem = gameObject;
-		parent.GetComponent<cut> ().showHighlight (true);
+
+		if(nManager.currentItem == gameObject)
+			parent.GetComponent<cut> ().showHighlight (true);
 		float scroll = Input.GetAxis ("Mouse ScrollWheel");
 		if (scroll == 0f)
 			return;
@@ -62,7 +67,8 @@ public class innerCut : MonoBehaviour {
 	}
 	void OnMouseDown(){
 		mouseDown = true;
-
+		if (mouseOver)
+			nManager.currentItem = gameObject;
 		//since deleting a gameobject doesn't trigger 'onTriggerExit2D' we make the object invisible and
 		//manually move it outside, then delete it
 		if (deleteMode.getDeleteMode ()){
@@ -121,13 +127,15 @@ public class innerCut : MonoBehaviour {
 	}
 	void OnMouseDrag(){
 		mouseDragging = true;
-
+		nManager.currentItem = gameObject;
 		transform.position = GetHitPoint () + offset;
 		parent.transform.position = transform.position;
 
 		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
 		Collider2D[] overlap = Physics2D.OverlapAreaAll (coll.bounds.min, coll.bounds.max);
 		foreach (Collider2D i in overlap) {
+			if(!isCoveringObject(i))
+				continue;
 			if (i == GetComponent<Collider2D> ())
 				continue;
 			if (i.gameObject.name.Contains ("cut")) 
@@ -249,5 +257,9 @@ public class innerCut : MonoBehaviour {
 				result.Add (i.gameObject);
 		}
 		return result;
+	}
+
+	bool isCoveringObject(Collider2D other){
+		return GetComponent<PolygonCollider2D> ().bounds.Contains (other.bounds.max);
 	}
 }

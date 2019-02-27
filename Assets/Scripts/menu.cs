@@ -27,14 +27,14 @@ public class menu : MonoBehaviour, IPointerDownHandler {
             foreach (GameObject g in vars) {
                 g.GetComponent<SpriteRenderer>().enabled = true;
             }
-			timeLineButton.SetActive (true);
+			//timeLineButton.SetActive (true);
         } else {
             showMenu = true;
             gameObject.SetActive(showMenu);
             foreach (GameObject g in vars) {
                 g.GetComponent<SpriteRenderer>().enabled = false;
             }
-			timeLineButton.SetActive (false);
+			//timeLineButton.SetActive (false);
         }
     }
     public void reload() {
