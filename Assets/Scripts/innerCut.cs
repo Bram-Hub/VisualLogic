@@ -88,6 +88,9 @@ public class innerCut : MonoBehaviour {
 		//if shift click then add this object to list of select objects
 		if (Input.GetKey (KeyCode.LeftShift)) {
 			mPointer.addSelectedObject (gameObject);
+			foreach (GameObject i in getChildCuts()) {
+				mPointer.addSelectedObject (i);
+			}
 		}
 
 		//handle touch inputs and scaling
@@ -260,6 +263,7 @@ public class innerCut : MonoBehaviour {
 	}
 
 	bool isCoveringObject(Collider2D other){
-		return GetComponent<PolygonCollider2D> ().bounds.Contains (other.bounds.max);
+		return GetComponent<PolygonCollider2D> ().bounds.Contains (other.bounds.max) &&
+		GetComponent<PolygonCollider2D> ().bounds.Contains (other.bounds.min);
 	}
 }
