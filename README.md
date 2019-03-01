@@ -1,5 +1,5 @@
 ## Visual Logic
-Visual Logic is a tool to represent existential graphs, a visual notation for logic expressions developed by Charles Saunders Peirce.
+Visual Logic is a tool to represent existential graphs, a visual notation for logic expressions developed by Charles Sanders Peirce.
 Built in Unity and C#. Currently supports propositional logic.
 
 Try it: [Web Demo](https://shailpatels.me/vl_web/index.html)
