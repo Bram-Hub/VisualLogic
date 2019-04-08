@@ -62,6 +62,26 @@ public class nodeManager : MonoBehaviour {
         GameObject copy = createAtUI(type, pos_);
         return copy;
     }
+	public GameObject createCutFromCopy(GameObject original, Vector3 pos){
+		GameObject copy, innerCopy = null;
+		copy = Instantiate (GameObject.Find("cut"), pos, Quaternion.identity);
+		copy.name = "cut_" + cut_count;
+		copy.tag = "draggable";
+		copy.transform.localScale = original.GetComponent<innerCut>().parent.transform.localScale;
+		copy.transform.SetParent (null);
+
+		innerCopy = Instantiate (GameObject.Find ("innerCut"), pos, Quaternion.identity);
+		innerCopy.transform.SetParent (null);
+
+		innerCopy.tag = "draggable";
+		innerCopy.name = "innerCut_" + cut_count;
+
+		original.transform.SetParent (null);
+		innerCopy.transform.localScale = original.transform.localScale;
+
+		++cut_count;
+		return copy;
+	}
     public void moved(Vector2 origin, Vector2 newPos, GameObject g) {
         undoStack.push(new move(g, move.action.moved,origin,newPos) );
     }
