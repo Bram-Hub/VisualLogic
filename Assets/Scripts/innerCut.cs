@@ -51,6 +51,8 @@ public class innerCut : MonoBehaviour {
 		if(nManager.currentItem == gameObject)
 			parent.GetComponent<cut> ().showHighlight (true);
 		float scroll = Input.GetAxis ("Mouse ScrollWheel");
+
+		//on scroll scale the innercut and its border up or down
 		if (scroll == 0f)
 			return;
 		if (scroll > 0f) {
@@ -60,21 +62,22 @@ public class innerCut : MonoBehaviour {
 		}
 		parent.transform.localScale = transform.localScale;
 	}
+
 	void OnMouseExit(){
 		mouseOver = false;
 		nManager.currentItem = null;
 		parent.GetComponent<cut> ().showHighlight (false);
 	}
+
 	void OnMouseDown(){
 		mouseDown = true;
 		if (mouseOver)
 			nManager.currentItem = gameObject;
+		
 		//since deleting a gameobject doesn't trigger 'onTriggerExit2D' we make the object invisible and
 		//manually move it outside, then delete it
 		if (deleteMode.getDeleteMode ()){
-			foreach (GameObject i in getChildCuts()) {
-				cascadeUpdateLevel (false, i);
-			}
+			List<GameObject> children = getAllChildCuts ();
 			GetComponent<SpriteRenderer>().enabled = false;
 			parent.GetComponent<SpriteRenderer> ().enabled = false;
 			transform.position = new Vector3 (-200, -200, -200);
@@ -82,6 +85,10 @@ public class innerCut : MonoBehaviour {
 			Destroy (gameObject);
 			Destroy (parent);
 
+			//update all the nested cuts now that the base level has changed
+			foreach (GameObject i in children) {
+				cascadeUpdateLevel (false, i);
+			}
 			return;
 		}
 
@@ -125,12 +132,14 @@ public class innerCut : MonoBehaviour {
 			j.transform.SetParent (transform);
 		}
 	}
+
 	void OnMouseDrag(){
 		mouseDragging = true;
 		nManager.currentItem = gameObject;
 		transform.position = GetHitPoint () + offset;
 		parent.transform.position = transform.position;
 
+		//get everything this cut collides with thats smaller than it and parent them for smooth movement
 		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
 		Collider2D[] overlap = Physics2D.OverlapAreaAll (coll.bounds.min, coll.bounds.max);
 		foreach (Collider2D i in overlap) {
@@ -153,6 +162,7 @@ public class innerCut : MonoBehaviour {
 			j.transform.SetParent (transform);
 		}
 	}
+
 	void OnMouseUp(){
 		mouseDragging = false;
 		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
@@ -168,6 +178,7 @@ public class innerCut : MonoBehaviour {
 		transform.localPosition = new Vector3 (transform.position.x, transform.position.y, 0f);
 		mouseDown = false;
 	}
+
 	//normalize the mouseposition from a 3d perspective to a 2d one,
 	//this makes moving elements smoother
 	private Vector3 GetHitPoint(){
@@ -177,6 +188,7 @@ public class innerCut : MonoBehaviour {
 		plane.Raycast (ray, out dist);
 		return ray.GetPoint(dist);
 	}
+
 	void OnTriggerEnter2D(Collider2D collision){
 		if (collision.GetComponent<SpriteRenderer>().sortingLayerName == "Variables") {
 			collision.GetComponent<SpriteRenderer> ().sortingOrder = GetComponent<SpriteRenderer>().sortingOrder + 1;
@@ -194,6 +206,7 @@ public class innerCut : MonoBehaviour {
 			//the other cut is the same size as this one
 		}
 	}
+
 	void OnTriggerExit2D(Collider2D collision){
 		if (collision.GetComponent<SpriteRenderer> ().sortingLayerName == "Variables") {
 			collision.GetComponent<SpriteRenderer> ().sortingOrder = GetComponent<SpriteRenderer> ().sortingOrder - 1;
@@ -212,6 +225,8 @@ public class innerCut : MonoBehaviour {
 			//the other cut is the same size as this one
 		}
 	}
+
+	//is cut b greater than this cut
 	bool isGreater( Collider2D b){
 		PolygonCollider2D thisCollider = GetComponent<PolygonCollider2D> ();
 		PolygonCollider2D otherCollider = b.GetComponent<PolygonCollider2D> ();
@@ -220,20 +235,26 @@ public class innerCut : MonoBehaviour {
 
 		return (thisSize.x < otherSize.x && thisSize.y < otherSize.y);
 	}
+
+	//is this cut equal to cut b
 	bool isEqual(Collider2D b){
 		PolygonCollider2D thisCollider = GetComponent<PolygonCollider2D> ();
 		PolygonCollider2D otherCollider = b.GetComponent<PolygonCollider2D> ();
 		return thisCollider.bounds.size == otherCollider.bounds.size;
 	}
+
 	public void updateLevel(bool increase, GameObject obj){
 		obj.GetComponent<SpriteRenderer> ().sortingOrder += (increase) ? 1 : -1;
 	}
+		
 	public void cascadeUpdateLevel(bool increase, GameObject obj){
 		obj.GetComponent<SpriteRenderer> ().sortingOrder += (increase) ? 1 : -1;
 		foreach (GameObject i in getAllChildCuts()) {
 			i.GetComponent<SpriteRenderer> ().sortingOrder += (increase) ? 1 : -1;
 		}
 	}
+
+	//get every cut nested within this one
 	public List<GameObject> getAllChildCuts(){
 		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
 		Collider2D[] overlap = Physics2D.OverlapAreaAll (coll.bounds.min, coll.bounds.max);
@@ -246,12 +267,14 @@ public class innerCut : MonoBehaviour {
 		}
 		return result;
 	}
-	public List<GameObject> getChildCuts(){
+
+	//returns a list of gameobjects that are all the variables on the same layer as this cut
+	public List<GameObject> getChildVars(){
 		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
 		Collider2D[] overlap = Physics2D.OverlapAreaAll (coll.bounds.min, coll.bounds.max);
 		List<GameObject> result = new List<GameObject> ();
 		foreach (Collider2D i in overlap) {
-			if (!i.name.Contains ("innerCut"))
+			if (i.name.Contains ("innerCut") || i.name.Contains("cut"))
 				continue;
 			if (i.GetComponent<SpriteRenderer> ().sortingOrder - 1 == GetComponent<SpriteRenderer> ().sortingOrder )
 				result.Add (i.gameObject);

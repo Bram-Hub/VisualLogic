@@ -27,7 +27,7 @@ public class mousePointer : MonoBehaviour {
 
 	void merge(){
 		Vector3 parent_pos = selectedObjects [0].transform.position;
-		List<GameObject> children = selectedObjects [1].GetComponent<innerCut> ().getChildCuts ();
+		List<GameObject> children = selectedObjects [1].GetComponent<innerCut> ().getAllChildCuts ();
 		foreach (GameObject i in children) {
 			i.transform.position = parent_pos;
 		}
@@ -36,17 +36,47 @@ public class mousePointer : MonoBehaviour {
 		selectedObjects.Clear ();
 	}
 
+	private Dictionary<GameObject, Vector2>  getChildVarHelper(List<GameObject> childVars){
+		Dictionary<GameObject, Vector2> vars;
+		Vector3 child_pos = selectedObjects [0].transform.position;
+		if (childVars.Count == 0) {
+			vars = null;
+		} else {
+			vars = new Dictionary<GameObject, Vector2> ();
+			foreach (GameObject i in childVars) {
+				Vector2 tmp = new Vector2( i.transform.position.x -  child_pos.x , i.transform.position.y - child_pos.y   );
+				vars.Add (i, tmp);
+			}
+		}
+		return vars;
+	}
+
+	//copy one cut into another should be called from a GUI button click
 	public void copy(){
+		if (!deleteBtn.copyMode)
+			return;
+	
+		//both selected objects must be cuts
+		if (!selectedObjects [1].name.ToLower ().Contains ("cut") || !selectedObjects [0].name.ToLower ().Contains ("cut"))
+			return;
+
 		Vector3 par_pos = selectedObjects [1].transform.position;
-		nManager.createCutFromCopy(selectedObjects[0],par_pos);
+		List<GameObject> childVars =  selectedObjects[0].GetComponent<innerCut> ().getChildVars ();
+
+		Dictionary<GameObject, Vector2> vars = getChildVarHelper (childVars);
+
+		nManager.createCutFromCopy(selectedObjects[0],par_pos, vars);
 
 		foreach (GameObject i in selectedObjects[0].GetComponent<innerCut>().getAllChildCuts()) {
-			nManager.createCutFromCopy (i, par_pos);
+			childVars = i.GetComponent<innerCut> ().getChildVars ();
+			vars = getChildVarHelper (childVars);
+			nManager.createCutFromCopy (i, par_pos, vars);
 		}
 
 		selectedObjects [0].transform.SetParent (null);
 		selectedObjects [1].transform.SetParent (null);
 		selectedObjects.Clear ();
+		deleteBtn.setCopyMode ();
 	}
 
 	void Update(){

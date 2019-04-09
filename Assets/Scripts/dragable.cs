@@ -26,6 +26,8 @@ public class dragable : MonoBehaviour{
     private void Update() {
 		if (!isMouseOver && hit)
 			rend.color = Color.red;
+		else if(!isMouseOver && !mPointer.selectedObjects.Contains(gameObject) )
+			rend.color = Color.white;
     }
     private void OnMouseDown() {
         clicked = true;

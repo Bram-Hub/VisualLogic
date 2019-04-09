@@ -14,29 +14,39 @@ public class nodeManager : MonoBehaviour {
         redoStack = new moveStack();
         undoStack = new moveStack();
     }
-    private void Update() {
-        if (currentItem == null) mPointer.resetCursor();
-    }
+
+	/**
+	A valid type can be one of these strings: 
+		cut, A, B, C, D, E, F, P, Q
+	**/
+	//given a type, this function creates a new one of them at the ceneter of the screen (8,5)
     public void create(string type) {
+		//find and copy the original type
         GameObject original = GameObject.Find(type);
         GameObject copy;
         copy = Instantiate(original,new Vector2(8,5), Quaternion.identity);
         copy.tag = "draggable";
-        copy.transform.localScale = new Vector3(1, 1, 1);
-        float scale = 0.6f;
+
 		if (type != "cut") {
+			//correct the variables size so its not too big and fix its z position
 			copy.transform.localScale = new Vector3 (0.5f, 0.5f, 0.5f);
 			copy.transform.position = new Vector3 (copy.transform.position.x, copy.transform.position.y, 0f);
 		} else {
+			//increment number of cuts created so far and fix this ones name
 			copy.name = type + "_" + cut_count;
 			GameObject inner = GameObject.Find ("innerCut");
 			GameObject innerCopy = Instantiate(inner,new Vector2(8,5), Quaternion.identity);
+
 			innerCopy.name = "innerCut_" + cut_count;
 			innerCopy.tag = "draggable";
+
 			innerCopy.transform.localScale = new Vector3(1, 1, 1);
 			++cut_count;
 		}
     }
+
+	//given a type and a position create an object at a location and return an instance of it
+	//this should be used for instantiating and dragging objects from the var box
     public GameObject createAtUI(string type, Vector3 pos) {
         GameObject original = GameObject.Find(type);
 		GameObject copy, innerCopy = null;
@@ -57,12 +67,20 @@ public class nodeManager : MonoBehaviour {
 		}
 		return (type != "cut") ? copy : innerCopy ;
     }
+
+	//given a type and a position create an object at a location and return an instance of it
+	//driver function for when having a Vector2 position
     public GameObject createAtPos(string type, Vector2 pos) {
 		Vector3 pos_ = new Vector3 (pos.x, pos.y, 0.0f);
         GameObject copy = createAtUI(type, pos_);
         return copy;
     }
-	public GameObject createCutFromCopy(GameObject original, Vector3 pos){
+
+	//given an original cut, position, and optional map of variables create a copy of that object at that position
+	//the optional param maps gamobjects to their offsets to other cuts
+	//this prevents variables from moving to the center when copying over
+	//returns an instance of the new object
+	public GameObject createCutFromCopy(GameObject original, Vector3 pos, Dictionary<GameObject, Vector2> vars = null){
 		GameObject copy, innerCopy = null;
 		copy = Instantiate (GameObject.Find("cut"), pos, Quaternion.identity);
 		copy.name = "cut_" + cut_count;
@@ -80,8 +98,18 @@ public class nodeManager : MonoBehaviour {
 		innerCopy.transform.localScale = original.transform.localScale;
 
 		++cut_count;
+
+		if (vars != null) {
+			foreach ( KeyValuePair<GameObject, Vector2> i in vars) {
+				Vector3 var_pos = new Vector3 ( innerCopy.transform.position.x + i.Value.x, innerCopy.transform.position.y + i.Value.y, 0f );
+				GameObject tmp = Instantiate (i.Key, var_pos, Quaternion.identity);
+				tmp.name = i.Key.name;
+			}
+		}
+
 		return copy;
 	}
+
     public void moved(Vector2 origin, Vector2 newPos, GameObject g) {
         undoStack.push(new move(g, move.action.moved,origin,newPos) );
     }
