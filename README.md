@@ -12,9 +12,12 @@ More about [Existential Graphs](https://shailpatels.me/EG/index.html)
 - Sandbox enviroment to learn logic
 
 ### Development Install
+*Note: Unity installed on windows only supports windows line endings, git pulling through WSL may cause issues
+opening up the project*
 
 1. Clone the repo locally 
 2. Open Unity > Open project > VisualLogic
+3. Select s1 under the scenes folder
 
 (Any version of [Unity 2017](https://unity3d.com/get-unity/download/archive) or higher should work)
 
