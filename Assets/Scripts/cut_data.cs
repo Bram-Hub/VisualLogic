@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class cut_data : MonoBehaviour {
-	PolygonCollider2D pColl;
+	public PolygonCollider2D pColl;
 	// Use this for initialization
 	void Start () {
 		pColl = GetComponent<PolygonCollider2D> ();
@@ -23,5 +23,8 @@ public class cut_data : MonoBehaviour {
 	}
 	public float getHeight(){
 		return pColl.bounds.size.y;
+	}
+	public float getArea(){
+		return pColl.bounds.size.x * pColl.bounds.size.y;
 	}
 }

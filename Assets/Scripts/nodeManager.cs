@@ -94,6 +94,9 @@ public class nodeManager : MonoBehaviour {
 		innerCopy.tag = "draggable";
 		innerCopy.name = "innerCut_" + cut_count;
 
+		copy.GetComponent<cut> ().child = innerCopy;
+		innerCopy.GetComponent<innerCut> ().parent = copy;
+
 		original.transform.SetParent (null);
 		innerCopy.transform.localScale = original.transform.localScale;
 
@@ -107,7 +110,7 @@ public class nodeManager : MonoBehaviour {
 			}
 		}
 
-		return copy;
+		return innerCopy;
 	}
 
     public void moved(Vector2 origin, Vector2 newPos, GameObject g) {

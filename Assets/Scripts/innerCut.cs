@@ -226,8 +226,81 @@ public class innerCut : MonoBehaviour {
 		}
 	}
 
+	public cut_data getCutData(GameObject g){
+		if (g.GetComponent<innerCut> ()) {
+			return g.GetComponent<innerCut> ().parent.GetComponent<cut_data> ();
+		} else {
+			return g.GetComponent<cut_data> ();
+		}
+	}
+
+	public innerCut getInnerCut(GameObject g){
+		if (g.GetComponent<innerCut> ()) {
+			return g.GetComponent<innerCut> ();
+		} else {
+			return g.GetComponent<cut> ().child.GetComponent<innerCut>();
+		}
+	}
+
+	private bool isIn(Collider2D[] list, Collider2D obj){
+		for (int i = 0; i < list.Length; ++i) {
+			if (list [i] == obj) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public Collider2D[] getOverLap(){
+		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
+		return Physics2D.OverlapAreaAll (coll.bounds.min, coll.bounds.max);
+	}
+
+	public void AdjustCut(GameObject _par){
+		Collider2D[] before_overlap = getInnerCut (_par).getOverLap ();
+
+		//am I greater than my parent
+		if (!isGreater (_par.GetComponent<Collider2D>()  )) {
+			_par.transform.localScale = 2 * _par.transform.localScale;
+			GameObject outer_cut = _par.GetComponent<innerCut>().parent;
+			outer_cut.transform.localScale = 2 * outer_cut.transform.localScale;
+		}
+			
+		Collider2D[] after_overlap =  getInnerCut (_par).getOverLap ();
+
+		List<Collider2D> overlap = new List<Collider2D> ();
+		for (int j = 0; j < after_overlap.Length; ++j) {
+			if(! isIn(before_overlap,  after_overlap[j] )){
+				overlap.Add(after_overlap[j]);
+			}
+		}
+			
+		foreach (Collider2D i in overlap) {
+			//am i to the right
+			if (i.gameObject.name.Contains ("innerCut"))
+				continue;
+
+			//Debug.Log (i.gameObject);
+			Debug.Log(_par);
+			//hit something to the right - move left
+			if (_par.transform.position.x <= i.transform.position.x && _par.layer == i.gameObject.layer) {
+				Debug.Log ("!!!");
+				cut_data cd = getCutData (i.gameObject);
+				List<GameObject> local_childs = getInnerCut(_par).getAllChildCuts();
+
+				//transform.position = new Vector3 ( -20f, transform.position.y, 0f);
+				//_par.transform.SetParent(null);
+				//GameObject.Find(_par.name).transform.position = new Vector3(_par.transform.position.x - (cd.getWidth ()), _par.transform.position.y, 0f);
+				//GetComponent<innerCut> ().parent.transform.position = new Vector3 (0, 0, 0);
+				foreach (GameObject j in local_childs) {
+				//	j.transform.position = new Vector3 (_par.transform.position.x - (cd.getWidth ()), j.transform.position.y, 0f);
+				}
+			}
+		}
+	}
+
 	//is cut b greater than this cut
-	bool isGreater( Collider2D b){
+	public bool isGreater( Collider2D b){
 		PolygonCollider2D thisCollider = GetComponent<PolygonCollider2D> ();
 		PolygonCollider2D otherCollider = b.GetComponent<PolygonCollider2D> ();
 		Vector3 thisSize = thisCollider.bounds.size;

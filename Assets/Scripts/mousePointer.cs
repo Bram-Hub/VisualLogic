@@ -51,6 +51,23 @@ public class mousePointer : MonoBehaviour {
 		return vars;
 	}
 
+	private bool isIn(Collider2D[] list, Collider2D obj){
+		for (int i = 0; i < list.Length; ++i) {
+			if (list [i] == obj) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public cut_data getCutData(GameObject g){
+		if (g.GetComponent<innerCut> ()) {
+			return g.GetComponent<innerCut> ().parent.GetComponent<cut_data> ();
+		} else {
+			return g.GetComponent<cut_data> ();
+		}
+	}
+
 	//copy one cut into another should be called from a GUI button click
 	public void copy(){
 		if (!deleteBtn.copyMode)
@@ -65,7 +82,16 @@ public class mousePointer : MonoBehaviour {
 
 		Dictionary<GameObject, Vector2> vars = getChildVarHelper (childVars);
 
-		nManager.createCutFromCopy(selectedObjects[0],par_pos, vars);
+		GameObject copy  = nManager.createCutFromCopy(selectedObjects[0],par_pos, vars);
+
+
+
+		selectedObjects [0].transform.SetParent (null);
+		selectedObjects [1].transform.SetParent (null);
+
+		GameObject copy_to = selectedObjects [1];
+		GameObject copy_from = selectedObjects [0];
+	
 
 		foreach (GameObject i in selectedObjects[0].GetComponent<innerCut>().getAllChildCuts()) {
 			childVars = i.GetComponent<innerCut> ().getChildVars ();
@@ -73,8 +99,57 @@ public class mousePointer : MonoBehaviour {
 			nManager.createCutFromCopy (i, par_pos, vars);
 		}
 
-		selectedObjects [0].transform.SetParent (null);
-		selectedObjects [1].transform.SetParent (null);
+		if(copy_to.GetComponent<innerCut>().isGreater(copy_from.GetComponent<Collider2D>())){
+			Collider2D[] before_overlap = copy_to.GetComponent<innerCut>().getOverLap ();
+			selectedObjects [1].transform.localScale += selectedObjects [0].transform.localScale;
+			selectedObjects [1].GetComponent<innerCut> ().parent.transform.localScale += selectedObjects [0].transform.localScale;
+
+			Collider2D[] after_overlap = copy_to.GetComponent<innerCut>().getOverLap ();
+
+			List<Collider2D> overlap = new List<Collider2D> ();
+			for (int j = 0; j < after_overlap.Length; ++j) {
+				if(! isIn(before_overlap,  after_overlap[j] )){
+					overlap.Add(after_overlap[j]);
+				}
+			}
+
+			foreach (Collider2D i in overlap) {
+				if (copy_to.transform.position.x <= i.transform.position.x && copy_to.layer == i.gameObject.layer) {
+					cut_data cd = getCutData (copy_to);
+					Vector3 offset = new Vector3 (copy_from.transform.position.x + cd.getWidth () / 4, copy_from.transform.position.y, 0f);
+					copy_from.transform.position = offset;
+					foreach (GameObject j in copy_from.GetComponent<innerCut>().getChildVars()) {
+						j.transform.position = offset;
+					}
+				} else {
+					cut_data cd = getCutData (copy_to);
+					Vector3 offset = new Vector3 (copy_from.transform.position.x - cd.getWidth () / 4, copy_from.transform.position.y, 0f);
+					copy_from.transform.position = offset;
+					foreach (GameObject j in copy_from.GetComponent<innerCut>().getChildVars()) {
+						j.transform.position = offset;
+					}
+				}
+
+				//y
+
+				if (copy_to.transform.position.y <= i.transform.position.y && copy_to.layer == i.gameObject.layer) {
+					cut_data cd = getCutData (copy_to);
+					Vector3 offset = new Vector3 (copy_from.transform.position.x, copy_from.transform.position.y + cd.getHeight()/4, 0f);
+					copy_from.transform.position = offset;
+					foreach (GameObject j in copy_from.GetComponent<innerCut>().getChildVars()) {
+						j.transform.position = offset;
+					}
+				} else {
+					cut_data cd = getCutData (copy_to);
+					Vector3 offset = new Vector3 (copy_from.transform.position.x, copy_from.transform.position.y - cd.getHeight()/4, 0f);
+					copy_from.transform.position = offset;
+					foreach (GameObject j in copy_from.GetComponent<innerCut>().getChildVars()) {
+						j.transform.position = offset;
+					}
+				}
+			}
+		}
+
 		selectedObjects.Clear ();
 		deleteBtn.setCopyMode ();
 	}
