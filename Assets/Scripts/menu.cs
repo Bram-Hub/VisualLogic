@@ -3,15 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class menu : MonoBehaviour, IPointerDownHandler {
     bool showMenu;
+	bool showInputField;
     GameObject menuPanel;
 	public GameObject timeLineButton;
+	public GameObject expression_field;
 	// Use this for initialization
     private void Start() {
         showMenu = false;
         gameObject.SetActive(showMenu);
+		expression_field = GameObject.Find ("InputField");
+		expression_field.SetActive (false);
     }
     // Update is called once per frame
     private void Update() {
@@ -43,4 +48,26 @@ public class menu : MonoBehaviour, IPointerDownHandler {
     public void OnPointerDown (PointerEventData eventData) {
         menueScreen();
     }
+
+	public void enterExpression(){
+		if (showInputField) {
+			showInputField = false;
+		} else {
+			showInputField = true;
+		}
+		expression_field.SetActive(showInputField);
+	}
+
+	public void parseExpression(){
+		//p
+		//!p
+		//(!p) && q
+		string expr = expression_field.GetComponent<InputField>().text;
+		Debug.Log (expr);
+		Vector3 cursor = new Vector3(8,5,0);
+	}
+
+	public void parseExpressionHelper(){
+
+	}
 }

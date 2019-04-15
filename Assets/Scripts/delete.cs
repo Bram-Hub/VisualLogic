@@ -22,6 +22,8 @@ public class delete : MonoBehaviour {
             deleteBtn.color = Color.white;
         } else {
             deleteMode = true;
+			copyMode = false;
+			copyBtn.color = Color.white;
             deleteBtn.color = highlightedCol;
         }
     }
@@ -31,6 +33,8 @@ public class delete : MonoBehaviour {
 			copyBtn.color = Color.white;
 		} else {
 			copyMode = true;
+			deleteMode = false;
+			deleteBtn.color = Color.white;
 			copyBtn.color = copyHighlight;
 		}
 	}
