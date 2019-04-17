@@ -99,6 +99,7 @@ public class mousePointer : MonoBehaviour {
 			nManager.createCutFromCopy (i, par_pos, vars);
 		}
 
+		//FIXME: this should be broken into multiple functions
 		if(copy_to.GetComponent<innerCut>().isGreater(copy_from.GetComponent<Collider2D>())){
 			Collider2D[] before_overlap = copy_to.GetComponent<innerCut>().getOverLap ();
 			selectedObjects [1].transform.localScale += selectedObjects [0].transform.localScale;

@@ -64,13 +64,16 @@ public class nodeManager : MonoBehaviour {
 			innerCopy.tag = "draggable";
 			innerCopy.transform.localScale = new Vector3(1, 1, 1);
 			++cut_count;
+
+			copy.GetComponent<cut> ().child = innerCopy;
+			innerCopy.GetComponent<innerCut> ().parent = copy;
 		}
 		return (type != "cut") ? copy : innerCopy ;
     }
 
 	//given a type and a position create an object at a location and return an instance of it
 	//driver function for when having a Vector2 position
-    public GameObject createAtPos(string type, Vector2 pos) {
+	public GameObject createAtPos(string type, Vector2 pos) {
 		Vector3 pos_ = new Vector3 (pos.x, pos.y, 0.0f);
         GameObject copy = createAtUI(type, pos_);
         return copy;
