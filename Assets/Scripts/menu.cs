@@ -49,6 +49,7 @@ public class menu : MonoBehaviour, IPointerDownHandler {
     }
     public void OnPointerDown (PointerEventData eventData) {
         menueScreen();
+		enterExpression ();
     }
 
 	public void enterExpression(){
