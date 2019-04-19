@@ -60,7 +60,8 @@ public class nodeManager : MonoBehaviour {
 			copy.name = type + "_" + cut_count;
 			GameObject inner = GameObject.Find ("innerCut");
 			innerCopy = Instantiate(inner,pos, Quaternion.identity);
-			innerCopy.name = "innerCut_" + cut_count;
+            innerCopy.transform.position = new Vector3(innerCopy.transform.position.x, innerCopy.transform.position.y, 0f);
+            innerCopy.name = "innerCut_" + cut_count;
 			innerCopy.tag = "draggable";
 			innerCopy.transform.localScale = new Vector3(1, 1, 1);
 			++cut_count;
