@@ -156,13 +156,6 @@ public class mousePointer : MonoBehaviour {
 	}
 
 	void Update(){
-		//keyboard shortcuts
-		if (Input.GetKeyDown (KeyCode.Delete))
-			dMode.setDeleteMode ();
-
-		if (Input.GetKeyDown (KeyCode.M))
-			merge ();
-
 
 		if (deleteBtn.copyMode && selectedObjects.Count == 2) {
 			copy ();

@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class menu : MonoBehaviour, IPointerDownHandler {
-    bool showMenu;
+    public bool showMenu;
 	bool showInputField;
     GameObject menuPanel;
 	public GameObject timeLineButton;
@@ -22,9 +22,7 @@ public class menu : MonoBehaviour, IPointerDownHandler {
     }
     // Update is called once per frame
     private void Update() {
-        if (Input.GetKeyDown(KeyCode.Escape)) {
-            menueScreen();
-        }
+        
     }
     public void menueScreen() {
         GameObject[] vars = GameObject.FindGameObjectsWithTag("draggable");
@@ -42,6 +40,11 @@ public class menu : MonoBehaviour, IPointerDownHandler {
                 g.GetComponent<SpriteRenderer>().enabled = false;
             }
 			//timeLineButton.SetActive (false);
+        }
+
+        if (showInputField)
+        {
+            enterExpression();
         }
     }
     public void reload() {
