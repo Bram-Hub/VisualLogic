@@ -176,6 +176,8 @@ public class menu : MonoBehaviour, IPointerDownHandler {
 		return x == 'a' || x == 'b' || x == 'c' || x == 'd' || x == 'e' || x == 'f' || x == 'p' || x == 'q';
 	}
 
+	//TODO: move me to my own file!
+
 	public List<string> parseExpressionHelper(string x){
 		List<string> tokenized = new List<string>();
 		for (int i = 0; i < x.Length; ++i) {
@@ -224,5 +226,16 @@ public class menu : MonoBehaviour, IPointerDownHandler {
 			}
 		}
 		return tokenized;
+	}
+	//platform specific compilation!
+	//on desktop and other platforms, we can open a new window normally
+	//on webgl we have to open a new browser window!
+	public void showHelp(){
+		#if UNITY_EDITOR
+			Application.OpenURL("https://bram-hub.github.io/VisualLogic/");
+			return;
+		#elif UNITY_WEBGL
+			Application.ExternalEval("window.open(\"https://bram-hub.github.io/VisualLogic/\")");
+		#endif
 	}
 }
