@@ -6,14 +6,16 @@ public class mousePointer : MonoBehaviour {
     static Texture2D pointerIcon, scaleIcon;
     CursorMode cursorMode;
     Vector2 hotSpot;
-	Vector3 initial;
+	Vector3 initial, prev;
 	Ray ray;
 	RaycastHit2D hit;
-	GameObject selectionBox, box = null;
+	GameObject selectionBox;
 	delete deleteBtn;
 	public List<GameObject> selectedObjects;
 	public delete dMode;
 	public nodeManager nManager;
+	BoxCollider2D selectionCollider;
+	float magAfter = 0;
     // Use this for initialization
     void Start () {
         pointerIcon = Resources.Load("pointer") as Texture2D;
@@ -23,6 +25,7 @@ public class mousePointer : MonoBehaviour {
         cursorMode = CursorMode.Auto;
         hotSpot = Vector2.zero;
 		selectedObjects = new List<GameObject> ();
+		selectionCollider = selectionBox.GetComponent<BoxCollider2D> ();
     }
 
 	void merge(){
@@ -162,6 +165,8 @@ public class mousePointer : MonoBehaviour {
 		}
 
 		bool beginDrag = false;
+
+		//if we don't hit any element deselect any selected objects
 		if (Input.GetMouseButtonDown (0)) {
 			RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 			if (!hit.collider) {
@@ -170,7 +175,7 @@ public class mousePointer : MonoBehaviour {
 				foreach (GameObject i in selectedObjects) {
 					if (i.GetComponent<innerCut> ())
 						i.GetComponent<innerCut> ().parent.GetComponent<cut> ().showHighlight (false);
-					else
+					else if(i.GetComponent<dragable>())
 						i.GetComponent<dragable> ().showHighlight (false);
 				}
 				selectedObjects.Clear ();
@@ -178,27 +183,67 @@ public class mousePointer : MonoBehaviour {
 			}
 		}
 
-		if (Input.GetMouseButton (0)) {
-			float diff = (initial - GetHitPoint()).magnitude;
-			diff *= 1.25f;
-			if(diff > 0){
-				//box.transform.localScale = new Vector3(box.transform.localScale.x + diff, box.transform.localScale.y + diff, 0) ;
-				//box.transform.position = new Vector3 (box.transform.position.x, box.transform.position.y, 0);
+		if (Input.GetMouseButtonDown (1)) {
+			initial = GetHitPoint ();
+			selectionBox.transform.position = initial;
+		}
+
+		if (Input.GetMouseButton (1)) {
+			Vector3 diff = (initial - GetHitPoint());
+			//Debug.Log (diff);
+
+			float magInit = diff.magnitude;
+
+			Vector3 size = selectionCollider.bounds.center + selectionCollider.bounds.extents;
+
+			diff *= 1.8f;
+			Vector3 currentHit = GetHitPoint ();
+			bool increasingX = currentHit.x - prev.x > 0;
+			bool increasingY = currentHit.y - prev.y > 0;
+		
+			if(currentHit != prev){
+				if (Mathf.Abs(currentHit.x) > size.x && increasingX && currentHit.x != prev.x) {
+					selectionBox.transform.localScale = new Vector3 (selectionBox.transform.localScale.x + diff.x, selectionBox.transform.localScale.y, 1); 
+				} else if (!increasingX  && currentHit.x != prev.x) {
+					selectionBox.transform.localScale = new Vector3 (selectionBox.transform.localScale.x + Mathf.Abs(diff.x), selectionBox.transform.localScale.y, 1); 
+				}
+
+				if (Mathf.Abs(currentHit.y) > size.y && increasingY && currentHit.y != prev.y) {
+					selectionBox.transform.localScale = new Vector3 (selectionBox.transform.localScale.x, selectionBox.transform.localScale.y - diff.y, 1); 
+				} else if (!increasingY && currentHit.y != prev.y) {
+					selectionBox.transform.localScale = new Vector3 (selectionBox.transform.localScale.x, selectionBox.transform.localScale.y -  Mathf.Abs(diff.y), 1); 
+				}
+			}
+			magAfter = diff.magnitude;
+			prev = GetHitPoint ();
+
+			foreach(Collider2D i in getOverLap()){
+				if (i.tag != "draggable")
+					continue;
+
+				addSelectedObject (i.gameObject);
 			}
 		}
 
-		if (Input.GetMouseButtonUp (0)) {
-			Destroy (box);
+
+		if (Input.GetMouseButtonUp (1)) {
+			initial = GetHitPoint ();
+			selectionBox.transform.localScale = new Vector3 (1, 1, 1);
 		}
 			
 
 		foreach (GameObject i in selectedObjects) {
 			if (i.GetComponent<innerCut> ())
 				i.GetComponent<innerCut> ().parent.GetComponent<cut> ().showHighlight (true);
-			else
+			else if(i.GetComponent<dragable>())
 				i.GetComponent<dragable> ().showHighlight (true);
 		}
 	}
+
+	public Collider2D[] getOverLap(){
+		return Physics2D.OverlapAreaAll (selectionCollider.bounds.min, selectionCollider.bounds.max);
+	}
+
     public void resizeCutCursor() {
         Cursor.SetCursor(scaleIcon, hotSpot, cursorMode);
     }
@@ -210,10 +255,7 @@ public class mousePointer : MonoBehaviour {
     }
 
 	public void addSelectedObject(GameObject g){
-		if (selectedObjects.Contains (g)) {
-			selectedObjects.Remove (g);
-			g.transform.SetParent (null);
-		} else {
+		if (!selectedObjects.Contains (g)) {
 			selectedObjects.Add (g);
 		}
 	}

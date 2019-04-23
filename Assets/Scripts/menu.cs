@@ -50,9 +50,12 @@ public class menu : MonoBehaviour, IPointerDownHandler {
     public void reload() {
         SceneManager.LoadScene("s1");
     }
+
+	//if the user clicks outside the modal menu close it, also close the input field if its open
     public void OnPointerDown (PointerEventData eventData) {
         menueScreen();
-		enterExpression ();
+		if(showInputField)
+			enterExpression ();
     }
 
 	public void enterExpression(){
@@ -72,14 +75,6 @@ public class menu : MonoBehaviour, IPointerDownHandler {
 		Vector2 cursor = new Vector3(8,5);
 		//List<string> ret = parseExpressionHelper (expr);
 		string output = "";
-		/*foreach(string i in ret){
-			output += i + " ";
-			if(i.Length == 1 && isVar(i[0])){
-				
-			}
-		}
-		Debug.Log(output);
-		*/
 
 		int index = 0;
 		char v1, v2;
@@ -169,7 +164,8 @@ public class menu : MonoBehaviour, IPointerDownHandler {
 		}
 
 		menueScreen ();
-		enterExpression ();
+		if(showInputField)
+			enterExpression ();
 	}
 
 	private bool isVar(char x){
