@@ -136,26 +136,27 @@ public class menu : MonoBehaviour, IPointerDownHandler {
 		} else if (expr.Contains (">")) {
 			if (expr [0] == '~') {
 				index++;
-				nManager.createAtPos (expr [index].ToString().ToUpper(), cursor);
-				cursor = new Vector2 (12, 5);
-			} else {
-				GameObject cut = nManager.createAtPos ("cut", cursor);
-				cut.GetComponent<innerCut>().parent.transform.localScale = new Vector3(0.5f,0.5f,0.5f);
-				cut.transform.localScale = new Vector3 (0.5f, 0.5f, 0.5f);
-				nManager.createAtPos (expr[0].ToString().ToUpper(), cursor);
-				cursor = new Vector2 (12, 5);
 
-			}
-			index += 2;
-			if (expr [index] == '~') {
-				index++;
 				GameObject cut = nManager.createAtPos ("cut", cursor);
 				cut.GetComponent<innerCut>().parent.transform.localScale = new Vector3(0.5f,0.5f,0.5f);
 				cut.transform.localScale = new Vector3 (0.5f, 0.5f, 0.5f);
 				nManager.createAtPos (expr[index].ToString().ToUpper(), cursor);
+				cursor = new Vector2 (12, 5);
 			} else {
+
+				nManager.createAtPos (expr [index].ToString().ToUpper(), cursor);
+				cursor = new Vector2 (12, 5);
+			}
+			index += 2;
+			if (expr [index] == '~') {
+				index++;
 				v2 = expr [index];
 				nManager.createAtPos (expr [index].ToString().ToUpper(), cursor);
+			} else {
+				GameObject cut = nManager.createAtPos ("cut", cursor);
+				cut.GetComponent<innerCut>().parent.transform.localScale = new Vector3(0.5f,0.5f,0.5f);
+				cut.transform.localScale = new Vector3 (0.5f, 0.5f, 0.5f);
+				nManager.createAtPos (expr[index].ToString().ToUpper(), cursor);
 			}
 			cursor = new Vector2 (10, 5);
 			GameObject overall_cut = nManager.createAtPos("cut", cursor);

@@ -6,7 +6,7 @@ public class Shortcuts : MonoBehaviour
 {
     nodeManager nManage;
     delete dMode;
-    menu Mn;
+    public menu Mn;
     backGround bgrnd;
 
     // Start is called before the first frame update
@@ -14,7 +14,6 @@ public class Shortcuts : MonoBehaviour
     {
         nManage = GameObject.Find("lev_0").GetComponent<nodeManager>();
         dMode = GameObject.Find("DeleteButton").GetComponent<delete>();
-        Mn = GameObject.Find("menuPanel").GetComponent<menu>();
         bgrnd = GameObject.Find("Main Camera").GetComponent<backGround>();
     }
 

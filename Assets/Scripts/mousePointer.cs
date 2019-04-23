@@ -161,13 +161,14 @@ public class mousePointer : MonoBehaviour {
 	void Update(){
 
 		if (deleteBtn.copyMode && selectedObjects.Count == 2) {
-			copy ();
+		//	copy ();
 		}
 
 		bool beginDrag = false;
 
 		//if we don't hit any element deselect any selected objects
 		if (Input.GetMouseButtonDown (0)) {
+			initial = GetHitPoint ();
 			RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 			if (!hit.collider) {
 				beginDrag = true;
@@ -181,6 +182,18 @@ public class mousePointer : MonoBehaviour {
 				selectedObjects.Clear ();
 				//box = Instantiate (selectionBox, GetHitPoint(), Quaternion.identity);
 			}
+		}
+
+		if (Input.GetMouseButton (0)) {
+			RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+			if (hit.collider) {
+				return;
+			}
+			Vector3 pos = initial - GetHitPoint();
+			float scaler = 0.05f;
+			Vector3 move = new Vector3 (pos.x * scaler,pos.y*scaler);
+
+			transform.Translate (move, Space.World);
 		}
 
 		if (Input.GetMouseButtonDown (1)) {

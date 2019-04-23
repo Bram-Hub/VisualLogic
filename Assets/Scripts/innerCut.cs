@@ -18,7 +18,8 @@ public class innerCut : MonoBehaviour {
 	delete deleteMode;
 	SpriteRenderer renderer;
 	Color tru, fal;
-
+	GameObject dot_copy = null;
+	List<GameObject> children;
 	void Start () {
 		//innerCut_
 		string parName = gameObject.name.Substring(gameObject.name.IndexOf ('_') + 1);
@@ -30,6 +31,8 @@ public class innerCut : MonoBehaviour {
 
 		ColorUtility.TryParseHtmlString ("#FFFFFFBD", out tru);
 		ColorUtility.TryParseHtmlString ("#A3A3A3BD", out fal);
+
+		children = new List<GameObject> ();
 	}
 	
 	// Update is called once per frame
@@ -73,7 +76,7 @@ public class innerCut : MonoBehaviour {
 		mouseDown = true;
 		if (mouseOver)
 			nManager.currentItem = gameObject;
-		
+
 		//since deleting a gameobject doesn't trigger 'onTriggerExit2D' we make the object invisible and
 		//manually move it outside, then delete it
 		if (deleteMode.getDeleteMode ()){
@@ -133,11 +136,55 @@ public class innerCut : MonoBehaviour {
 		}
 	}
 
+	void copy(GameObject dot){
+		dot.transform.position = GetHitPoint ();
+	}
+
+	private Dictionary<GameObject, Vector2>  getChildVarHelper(List<GameObject> childVars){
+		Dictionary<GameObject, Vector2> vars;
+		Vector3 child_pos = gameObject.transform.position;
+		if (childVars.Count == 0) {
+			vars = null;
+		} else {
+			vars = new Dictionary<GameObject, Vector2> ();
+			foreach (GameObject i in childVars) {
+				Vector2 tmp = new Vector2( i.transform.position.x -  child_pos.x , i.transform.position.y - child_pos.y   );
+				vars.Add (i, tmp);
+			}
+		}
+		return vars;
+	}
+
+	void copyRelease(GameObject dot){
+
+		dot.GetComponent<copy> ().copyIntoCut (gameObject);
+
+		nManager.createCutFromCopy (gameObject, GetHitPoint (), getChildVarHelper(getChildVars()));
+		foreach (GameObject i in children) {
+			nManager.createCutFromCopy (i, GetHitPoint(), getChildVarHelper(i.GetComponent<innerCut>().getChildVars()    ) );
+		}
+
+		Destroy (dot);
+	}
+
 	void OnMouseDrag(){
 		mouseDragging = true;
+		GameObject dot = GameObject.Find ("Dot");
+		if (deleteMode.copyMode) {
+			if(!dot_copy)
+				dot_copy = Instantiate (dot, GetHitPoint (), Quaternion.identity);
+
+			children = getAllChildCuts ();
+			copy (dot_copy);
+			return;
+		}
+
+
+
 		nManager.currentItem = gameObject;
 		transform.position = GetHitPoint () + offset;
 		parent.transform.position = transform.position;
+
 
 		//get everything this cut collides with thats smaller than it and parent them for smooth movement
 		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
@@ -165,6 +212,13 @@ public class innerCut : MonoBehaviour {
 
 	void OnMouseUp(){
 		mouseDragging = false;
+
+		if (deleteMode.copyMode) {
+			copyRelease(dot_copy);
+			return;
+		}
+
+
 		PolygonCollider2D coll = gameObject.GetComponent<PolygonCollider2D> ();
 		Collider2D[] overlap = Physics2D.OverlapAreaAll (coll.bounds.min, coll.bounds.max);
 		foreach (Collider2D i in overlap) {
@@ -190,6 +244,16 @@ public class innerCut : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D collision){
+		if (deleteMode.copyMode && collision.tag == "draggable" && collision.name.Contains("cut")) {
+			//are my borders colliding
+			if(collision.gameObject != parent){
+				//Debug.Log (gameObject.name + " is colliding with " + collision.name);
+				//Debug.Log (isGreater (collision));
+				//Debug.Log("game object " + GetComponent<PolygonCollider2D>().bounds);
+				//Debug.Log(collision.GetComponent<PolygonCollider2D>().bounds);
+			}
+		}
+
 		if (collision.GetComponent<SpriteRenderer>().sortingLayerName == "Variables") {
 			collision.GetComponent<SpriteRenderer> ().sortingOrder = GetComponent<SpriteRenderer>().sortingOrder + 1;
 			return;
@@ -282,6 +346,13 @@ public class innerCut : MonoBehaviour {
 		foreach (GameObject i in getAllChildCuts()) {
 			i.GetComponent<SpriteRenderer> ().sortingOrder += (increase) ? 1 : -1;
 		}
+	}
+
+	public List<GameObject> getAllChildren(){
+		List<GameObject> ret = new List<GameObject> ();
+		ret.AddRange (getAllChildCuts ());
+		ret.AddRange (getAllChildCuts ());
+		return ret;
 	}
 
 	//get every cut nested within this one
